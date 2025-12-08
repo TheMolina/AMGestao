@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Comércio - Sistema de Caixa</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+
+        .container {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin: 0 0 24px 0;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 12px;
+        }
+
+        h2 {
+            color: #555;
+            margin: 20px 0 12px 0;
+            font-size: 18px;
+        }
+
+        section {
+            background: #f9f9f9;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 10px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        button:active {
+            background: #004085;
+        }
+
+        button.success {
+            background: #28a745;
+        }
+
+        button.success:hover {
+            background: #218838;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        form > div:last-child {
+            grid-column: 1 / -1;
+            margin-top: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        thead {
+            background: #f0f0f0;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        th {
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .setor-box {
+            display: inline-block;
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .status-message {
+            padding: 12px;
+            border-radius: 4px;
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .status-info {
+            background: #e7f3ff;
+            color: #004085;
+            border: 1px solid #b3d9ff;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📦 Gestão de Comércio — Caixa Rápido</h1>
+
+        <div id="message"></div>
+
+        <section>
+            <div class="flex-between">
+                <h2>🏢 Setores</h2>
+                <button onclick="criarSetor()">➕ Novo Setor</button>
+            </div>
+            <div id="setoresContainer" style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+            </div>
+        </section>
+
+        <section>
+            <h2>📝 Cadastro de Produto</h2>
+            <form onsubmit="criarProduto(event)" style="margin-top: 12px;">
+                <input type="text" id="nomeProduto" placeholder="Nome do produto" required>
+                <select id="setorProduto">
+                    <option value="">— Selecione um setor —</option>
+                </select>
+                <input type="number" id="precoCompra" step="0.01" placeholder="Preço de compra (R$)" required>
+                <input type="number" id="precoVenda" step="0.01" placeholder="Preço de venda (R$)" required>
+                <input type="number" id="quantidadeProduto" placeholder="Quantidade em estoque" required>
+                <input type="text" id="codigoProduto" placeholder="Código de barras (opcional)">
+                <div style="grid-column: 1 / -1; margin-top: 8px;">
+                    <button type="submit" style="padding: 12px 24px; font-size: 16px;">✅ Criar Produto</button>
+                </div>
+            </form>
+        </section>
+
+        <section>
+            <h2>💰 Caixa / Vendas</h2>
+            <div style="margin-top: 12px;">
+                <input 
+                    type="text" 
+                    id="codigoVenda" 
+                    placeholder="Passe o leitor de código de barras aqui (ou digite manualmente)" 
+                    style="width: 100%; padding: 12px; font-size: 16px;"
+                    onkeypress="if(event.key === 'Enter') scanVenda();"
+                >
+            </div>
+            
+            <div id="vendaContainer" style="margin-top: 16px;">
+                <div class="empty-state">
+                    <p>Nenhum produto adicionado à venda</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>📊 Relatório Rápido</h2>
+            <div class="button-group">
+                <button onclick="calcularLucro()">💹 Calcular Lucro</button>
+                <button onclick="relatorioVendas()">📋 Relatório de Vendas</button>
+            </div>
+        </section>
+
+        <section style="background: #e7f3ff; border: 1px solid #b3d9ff; margin-top: 24px;">
+            <h3 style="margin-top: 0;">ℹ️ Status do Sistema</h3>
+            <p><strong>Status:</strong> ✅ Online (Aplicação Local)</p>
+            <p id="statusSetores"><strong>Setores cadastrados:</strong> 0</p>
+            <p id="statusProdutos"><strong>Produtos cadastrados:</strong> 0</p>
+            <p id="statusVendas"><strong>Vendas realizadas:</strong> 0</p>
+        </section>
+    </div>
+
+    <script>
+        // Database em memória
+        const db = {
+            setores: [
+                { id: 1, nome: 'Eletrônicos' },
+                { id: 2, nome: 'Alimentos' },
+                { id: 3, nome: 'Vestuário' }
+            ],
+            produtos: [
+                { id: 1, nome: 'Notebook', setor_id: 1, preco_compra: 2000, preco_venda: 3000, quantidade: 5, codigo_barras: '123456' },
+                { id: 2, nome: 'Teclado', setor_id: 1, preco_compra: 100, preco_venda: 150, quantidade: 20, codigo_barras: '123457' },
+                { id: 3, nome: 'Arroz', setor_id: 2, preco_compra: 3, preco_venda: 5, quantidade: 100, codigo_barras: '123458' },
+                { id: 4, nome: 'Camiseta', setor_id: 3, preco_compra: 20, preco_venda: 50, quantidade: 50, codigo_barras: '123459' }
+            ],
+            saidas: [],
+            nextSetor: 4,
+            nextProduto: 5,
+            vendaLista: []
+        };
+
+        // Salvar dados no localStorage
+        function salvarDados() {
+            localStorage.setItem('amgestao_db', JSON.stringify(db));
+        }
+
+        // Carregar dados do localStorage
+        function carregarDados() {
+            const saved = localStorage.getItem('amgestao_db');
+            if (saved) {
+                Object.assign(db, JSON.parse(saved));
+            }
+        }
+
+        // Inicializar na carga
+        window.onload = function() {
+            carregarDados();
+            renderSetores();
+            renderProdutos();
+            renderVenda();
+            atualizarStatus();
+        };
+
+        function showMessage(msg, type = 'info') {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = msg;
+            msgDiv.className = `status-message status-${type}`;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 4000);
+        }
+
+        function renderSetores() {
+            const container = document.getElementById('setoresContainer');
+            const select = document.getElementById('setorProduto');
+            
+            if (db.setores.length === 0) {
+                container.innerHTML = '<p style="color: #999;">Nenhum setor cadastrado</p>';
+                select.innerHTML = '<option value="">— Selecione um setor —</option>';
+            } else {
+                container.innerHTML = db.setores.map(s => `<div class="setor-box">${s.nome}</div>`).join('');
+                select.innerHTML = '<option value="">— Selecione um setor —</option>' + 
+                    db.setores.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
+            }
+        }
+
+        function renderProdutos() {
+            // Update select options
+        }
+
+        function criarSetor() {
+            const nome = prompt('Nome do setor:');
+            if (!nome) return;
+            
+            const novoSetor = { id: db.nextSetor++, nome };
+            db.setores.push(novoSetor);
+            salvarDados();
+            renderSetores();
+            showMessage(`✅ Setor "${nome}" criado com sucesso!`, 'success');
+        }
+
+        function criarProduto(event) {
+            event.preventDefault();
+            
+            const nome = document.getElementById('nomeProduto').value;
+            const setor_id = document.getElementById('setorProduto').value || null;
+            const preco_compra = parseFloat(document.getElementById('precoCompra').value);
+            const preco_venda = parseFloat(document.getElementById('precoVenda').value);
+            const quantidade = parseInt(document.getElementById('quantidadeProduto').value);
+            const codigo_barras = document.getElementById('codigoProduto').value || null;
+
+            if (!nome || !preco_compra || !preco_venda) {
+                showMessage('❌ Preencha todos os campos obrigatórios', 'error');
+                return;
+            }
+
+            if (codigo_barras && db.produtos.find(p => p.codigo_barras === codigo_barras)) {
+                showMessage('❌ Código de barras já cadastrado', 'error');
+                return;
+            }
+
+            const novoProduto = {
+                id: db.nextProduto++,
+                nome,
+                setor_id: setor_id ? parseInt(setor_id) : null,
+                preco_compra,
+                preco_venda,
+                quantidade,
+                codigo_barras
+            };
+
+            db.produtos.push(novoProduto);
+            salvarDados();
+            
+            // Limpar formulário
+            event.target.reset();
+            renderProdutos();
+            atualizarStatus();
+            showMessage(`✅ Produto "${nome}" criado com sucesso!`, 'success');
+        }
+
+        function scanVenda() {
+            const codigo = document.getElementById('codigoVenda').value.trim();
+            if (!codigo) return;
+
+            const produto = db.produtos.find(p => p.codigo_barras === codigo);
+            if (!produto) {
+                showMessage('❌ Produto não encontrado', 'error');
+                document.getElementById('codigoVenda').value = '';
+                return;
+            }
+
+            const itemExistente = db.vendaLista.find(p => p.id === produto.id);
+            if (itemExistente) {
+                itemExistente.quantidade++;
+            } else {
+                db.vendaLista.push({ ...produto, quantidade: 1 });
+            }
+
+            document.getElementById('codigoVenda').value = '';
+            renderVenda();
+            salvarDados();
+        }
+
+        function removerVenda(produtoId) {
+            db.vendaLista = db.vendaLista.filter(p => p.id !== produtoId);
+            renderVenda();
+            salvarDados();
+        }
+
+        function renderVenda() {
+            const container = document.getElementById('vendaContainer');
+            
+            if (db.vendaLista.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Nenhum produto adicionado à venda</p></div>';
+                return;
+            }
+
+            const total = db.vendaLista.reduce((sum, item) => sum + (item.preco_venda * item.quantidade), 0);
+            
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th style="text-align: center;">Quantidade</th>
+                            <th style="text-align: right;">Preço Unit.</th>
+                            <th style="text-align: right;">Subtotal</th>
+                            <th style="text-align: center;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${db.vendaLista.map(item => `
+                            <tr>
+                                <td>${item.nome}</td>
+                                <td style="text-align: center;">${item.quantidade}</td>
+                                <td style="text-align: right;">R$ ${item.preco_venda.toFixed(2)}</td>
+                                <td style="text-align: right;">R$ ${(item.preco_venda * item.quantidade).toFixed(2)}</td>
+                                <td style="text-align: center;"><button onclick="removerVenda(${item.id})" style="background: #dc3545; padding: 5px 10px; font-size: 12px;">✕</button></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #e7f3ff; border-radius: 4px;">
+                    <strong style="font-size: 18px;">Total: R$ ${total.toFixed(2)}</strong>
+                    <button onclick="finalizarVenda()" class="success" style="padding: 12px 24px; font-size: 16px;">🛒 Finalizar Venda</button>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function finalizarVenda() {
+            if (db.vendaLista.length === 0) {
+                showMessage('❌ Nenhum produto na venda', 'error');
+                return;
+            }
+
+            for (const item of db.vendaLista) {
+                const produto = db.produtos.find(p => p.id === item.id);
+                if (produto) {
+                    if (produto.quantidade < item.quantidade) {
+                        showMessage(`❌ Quantidade insuficiente de ${produto.nome}`, 'error');
+                        return;
+                    }
+                    produto.quantidade -= item.quantidade;
+                    db.saidas.push({
+                        id: db.saidas.length + 1,
+                        produto_id: item.id,
+                        quantidade: item.quantidade,
+                        data: new Date().toISOString(),
+                        codigo_barras: item.codigo_barras
+                    });
+                }
+            }
+
+            const total = db.vendaLista.reduce((sum, item) => sum + (item.preco_venda * item.quantidade), 0);
+            showMessage(`✅ Venda de R$ ${total.toFixed(2)} registrada com sucesso!`, 'success');
+            
+            db.vendaLista = [];
+            salvarDados();
+            renderVenda();
+            atualizarStatus();
+            document.getElementById('codigoVenda').focus();
+        }
+
+        function calcularLucro() {
+            let totalLucro = 0;
+            for (const saida of db.saidas) {
+                const produto = db.produtos.find(p => p.id === saida.produto_id);
+                if (produto) {
+                    const lucroUnitario = produto.preco_venda - produto.preco_compra;
+                    totalLucro += lucroUnitario * saida.quantidade;
+                }
+            }
+            showMessage(`💹 Lucro Total: R$ ${totalLucro.toFixed(2)}`, 'info');
+        }
+
+        function relatorioVendas() {
+            if (db.saidas.length === 0) {
+                showMessage('📋 Nenhuma venda registrada ainda', 'info');
+                return;
+            }
+            const totalVendas = db.saidas.reduce((sum, s) => {
+                const p = db.produtos.find(x => x.id === s.produto_id);
+                return sum + (p ? p.preco_venda * s.quantidade : 0);
+            }, 0);
+            showMessage(`📋 ${db.saidas.length} vendas registradas | Total: R$ ${totalVendas.toFixed(2)}`, 'info');
+        }
+
+        function atualizarStatus() {
+            document.getElementById('statusSetores').textContent = `<strong>Setores cadastrados:</strong> ${db.setores.length}`;
+            document.getElementById('statusProdutos').textContent = `<strong>Produtos cadastrados:</strong> ${db.produtos.length}`;
+            document.getElementById('statusVendas').textContent = `<strong>Vendas realizadas:</strong> ${db.saidas.length}`;
+        }
+    </script>
+</body>
+</html>

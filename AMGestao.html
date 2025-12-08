@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMGestao - Sistema de Gestão de Comercio</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #ffffff;
+            min-height: 100vh;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin: 0;
+            font-size: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-top: 8px;
+        }
+
+        h2 {
+            color: #333;
+            margin: 20px 0 12px 0;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3 {
+            color: #555;
+            margin: 15px 0 10px 0;
+        }
+
+        section {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        section:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 11px 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+        }
+
+        button.success:hover {
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.6);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        button.danger:hover {
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.6);
+        }
+
+        input, select {
+            padding: 11px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: #f9fafb;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        form > div:last-child {
+            grid-column: 1 / -1;
+            margin-top: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 16px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        thead {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        }
+
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            font-weight: 600;
+            color: #333;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+            transition: background 0.2s ease;
+        }
+
+        .setor-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 13px;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .status-message {
+            padding: 14px;
+            border-radius: 8px;
+            margin: 12px 0;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        .status-success {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .status-error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 24px;
+            font-style: italic;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab-button {
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #666;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: none;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .price-tag {
+            color: #059669;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .quantity-badge {
+            display: inline-block;
+            background: #f3f4f6;
+            color: #333;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .sale-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 12px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .summary-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .summary-card .amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .container {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 AMGestao</h1>
+            <p class="subtitle">Sistema de Gestão de Comércio e Caixa Rápido</p>
+        </div>
+
+        <div id="message"></div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="changeTab('setores')">🏢 Setores</button>
+            <button class="tab-button" onclick="changeTab('produtos')">📝 Produtos</button>
+            <button class="tab-button" onclick="changeTab('caixa')">💰 Caixa</button>
+            <button class="tab-button" onclick="changeTab('relatorio')">📊 Relatório</button>
+        </div>
+
+        <!-- TAB: SETORES -->
+        <div id="setores-tab" class="tab-content active">
+            <section>
+                <div class="flex-between">
+                    <h2>🏢 Gerenciar Setores</h2>
+                    <button onclick="criarSetor()">➕ Novo Setor</button>
+                </div>
+                <div id="setoresContainer" style="margin-top: 16px;">
+                </div>
+            </section>
+        </div>
+
+        <!-- TAB: PRODUTOS -->
+        <div id="produtos-tab" class="tab-content">
+            <section>
+                <h2>📝 Cadastro de Produto</h2>
+                <form onsubmit="criarProduto(event)" style="margin-top: 16px;">
+                    <input type="text" id="nomeProduto" placeholder="Nome do produto" required>
+                    <select id="setorProduto" required>
+                        <option value="">— Selecione um setor —</option>
+                    </select>
+                    <input type="number" id="precoCompra" step="0.01" placeholder="Preço de compra (R$)" required>
+                    <input type="number" id="precoVenda" step="0.01" placeholder="Preço de venda (R$)" required>
+                    <input type="number" id="quantidadeProduto" placeholder="Quantidade em estoque" value="1" required>
+                    <input type="text" id="codigoProduto" placeholder="Código de barras (opcional)">
+                    <div style="grid-column: 1 / -1; margin-top: 8px;">
+                        <button type="submit" style="width: 100%; padding: 12px; font-size: 16px; font-weight: 600;">✅ Criar Produto</button>
+                    </div>
+                </form>
+            </section>
+
+            <section>
+                <h2>📦 Produtos Cadastrados</h2>
+                <div id="produtosContainer" style="margin-top: 16px;">
+                </div>
+            </section>
+        </div>
+
+        <!-- TAB: CAIXA -->
+        <div id="caixa-tab" class="tab-content">
+            <section>
+                <h2>💰 Caixa de Vendas</h2>
+                
+                <div style="margin-top: 16px;">
+                    <label for="codigoVenda" style="display: block; margin-bottom: 8px; font-weight: 500;">📱 Escaneie o código de barras ou selecione um produto:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <input 
+                            type="text" 
+                            id="codigoVenda" 
+                            placeholder="Passe o leitor aqui ou digite o código" 
+                            style="padding: 14px; font-size: 16px;"
+                            onkeypress="if(event.key === 'Enter') scanVenda(event);"
+                            autofocus
+                        >
+                        <select id="selecionarProduto" onchange="adicionarProdutoSelecionado()" style="padding: 14px; font-size: 14px;">
+                            <option value="">— Ou selecione um produto —</option>
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 12px;">
+                        <input 
+                            type="number" 
+                            id="quantidadeManual" 
+                            placeholder="Quantidade" 
+                            value="1" 
+                            min="1"
+                            style="padding: 14px; font-size: 14px;"
+                        >
+                        <button onclick="adicionarComQuantidade()" style="padding: 14px 24px; font-weight: 600;">➕ Adicionar</button>
+                    </div>
+                </div>
+                
+                <div id="vendaContainer" style="margin-top: 24px;">
+                    <div class="empty-state">
+                        <p>👉 Nenhum produto adicionado à venda</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- TAB: RELATÓRIO -->
+        <div id="relatorio-tab" class="tab-content">
+            <section>
+                <h2>📊 Relatórios</h2>
+                <div class="button-group">
+                    <button onclick="calcularLucro()" class="success">💹 Calcular Lucro Total</button>
+                    <button onclick="relatorioVendas()">📋 Resumo de Vendas</button>
+                    <button onclick="relatorioPagamentos()">💳 Vendas por Pagamento</button>
+                    <button onclick="relatorioEstoque()">📦 Status do Estoque</button>
+                    <button onclick="abrirRelatorioData()">📅 Vendas por Data</button>
+                    <button onclick="limparTudo()">🗑️ Limpar Dados</button>
+                </div>
+            </section>
+
+            <section>
+                <h3>📈 Estatísticas</h3>
+                <div class="grid-2">
+                    <div class="summary-card">
+                        <h3>Setores</h3>
+                        <p class="amount" id="statSetores">0</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Produtos</h3>
+                        <p class="amount" id="statProdutos">0</p>
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top: 16px;">
+                    <div class="summary-card">
+                        <h3>Vendas Realizadas</h3>
+                        <p class="amount" id="statVendas">0</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Lucro Total</h3>
+                        <p class="amount" id="statLucro">R$ 0,00</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Database em memória com localStorage
+        const db = {
+            setores: [
+                { id: 1, nome: 'Eletrônicos' },
+                { id: 2, nome: 'Alimentos' },
+                { id: 3, nome: 'Vestuário' },
+                { id: 4, nome: 'Hortifrute' },
+                { id: 5, nome: 'Frios' }
+            ],
+            produtos: [
+                { id: 1, nome: 'Notebook Dell', setor_id: 1, preco_compra: 2000, preco_venda: 3000, quantidade: 5, codigo_barras: '123456' },
+                { id: 2, nome: 'Teclado Mecânico', setor_id: 1, preco_compra: 100, preco_venda: 150, quantidade: 20, codigo_barras: '123457' },
+                { id: 3, nome: 'Arroz Integral 5kg', setor_id: 2, preco_compra: 15, preco_venda: 25, quantidade: 100, codigo_barras: '123458' },
+                { id: 4, nome: 'Camiseta Básica', setor_id: 3, preco_compra: 20, preco_venda: 50, quantidade: 50, codigo_barras: '123459' }
+            ],
+            saidas: [],
+            nextSetor: 4,
+            nextProduto: 5,
+            vendaLista: []
+        };
+
+        // Salvar dados
+        function salvarDados() {
+            localStorage.setItem('amgestao_db', JSON.stringify(db));
+        }
+
+        // Carregar dados
+        function carregarDados() {
+            const saved = localStorage.getItem('amgestao_db');
+            if (saved) {
+                const loaded = JSON.parse(saved);
+                db.setores = loaded.setores || db.setores;
+                db.produtos = loaded.produtos || db.produtos;
+                db.saidas = loaded.saidas || db.saidas;
+                db.nextSetor = loaded.nextSetor || db.nextSetor;
+                db.nextProduto = loaded.nextProduto || db.nextProduto;
+                db.vendaLista = loaded.vendaLista || [];
+            }
+        }
+
+        // Inicializar
+        window.onload = function() {
+            carregarDados();
+            renderSetores();
+            renderProdutos();
+            renderVenda();
+            atualizarStatus();
+            document.getElementById('codigoVenda').focus();
+        };
+
+        function changeTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'caixa') {
+                setTimeout(() => document.getElementById('codigoVenda').focus(), 100);
+            }
+        }
+
+        function showMessage(msg, type = 'info') {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = msg;
+            msgDiv.className = `status-message status-${type}`;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 5000);
+        }
+
+        function renderSetores() {
+            const container = document.getElementById('setoresContainer');
+            const select = document.getElementById('setorProduto');
+            
+            if (db.setores.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum setor cadastrado</div>';
+                select.innerHTML = '<option value="">— Selecione um setor —</option>';
+            } else {
+                container.innerHTML = db.setores.map(s => `<span class="setor-badge">${s.nome}</span>`).join('');
+                select.innerHTML = '<option value="">— Selecione um setor —</option>' + 
+                    db.setores.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
+            }
+        }
+
+        function renderProdutos() {
+            const container = document.getElementById('produtosContainer');
+            const selectProduto = document.getElementById('selecionarProduto');
+            
+            if (db.produtos.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum produto cadastrado</div>';
+                selectProduto.innerHTML = '<option value="">— Ou selecione um produto —</option>';
+                return;
+            }
+
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Setor</th>
+                            <th>Código</th>
+                            <th style="text-align: right;">Preço</th>
+                            <th style="text-align: center;">Estoque</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${db.produtos.map(p => {
+                            const setor = db.setores.find(s => s.id === p.setor_id);
+                            return `
+                                <tr>
+                                    <td><strong>${p.nome}</strong></td>
+                                    <td>${setor ? setor.nome : '—'}</td>
+                                    <td>${p.codigo_barras || '—'}</td>
+                                    <td style="text-align: right;"><span class="price-tag">R$ ${p.preco_venda.toFixed(2)}</span></td>
+                                    <td style="text-align: center;"><span class="quantity-badge">${p.quantidade} un</span></td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = html;
+
+            // Atualizar select de produtos
+            selectProduto.innerHTML = '<option value="">— Ou selecione um produto —</option>' +
+                db.produtos.map(p => `<option value="${p.id}">${p.nome} (R$ ${p.preco_venda.toFixed(2)})</option>`).join('');
+        }
+
+        function criarSetor() {
+            const nome = prompt('Nome do setor:');
+            if (!nome || nome.trim() === '') return;
+            
+            const novoSetor = { id: db.nextSetor++, nome: nome.trim() };
+            db.setores.push(novoSetor);
+            salvarDados();
+            renderSetores();
+            showMessage(`✅ Setor "${nome}" criado com sucesso!`, 'success');
+        }
+
+        function criarProduto(event) {
+            event.preventDefault();
+            
+            const nome = document.getElementById('nomeProduto').value.trim();
+            const setor_id = document.getElementById('setorProduto').value;
+            const preco_compra = parseFloat(document.getElementById('precoCompra').value);
+            const preco_venda = parseFloat(document.getElementById('precoVenda').value);
+            const quantidade = parseInt(document.getElementById('quantidadeProduto').value);
+            const codigo_barras = document.getElementById('codigoProduto').value.trim() || null;
+
+            if (!nome || !setor_id || !preco_compra || !preco_venda || !quantidade) {
+                showMessage('❌ Preencha todos os campos obrigatórios', 'error');
+                return;
+            }
+
+            if (codigo_barras && db.produtos.find(p => p.codigo_barras === codigo_barras)) {
+                showMessage('❌ Código de barras já cadastrado', 'error');
+                return;
+            }
+
+            const novoProduto = {
+                id: db.nextProduto++,
+                nome,
+                setor_id: parseInt(setor_id),
+                preco_compra,
+                preco_venda,
+                quantidade,
+                codigo_barras
+            };
+
+            db.produtos.push(novoProduto);
+            salvarDados();
+            
+            event.target.reset();
+            renderProdutos();
+            atualizarStatus();
+            showMessage(`✅ Produto "${nome}" criado com sucesso!`, 'success');
+        }
+
+        function scanVenda(event) {
+            event.preventDefault();
+            const codigo = document.getElementById('codigoVenda').value.trim();
+            const quantidade = parseInt(document.getElementById('quantidadeManual').value) || 1;
+            
+            if (!codigo) return;
+
+            const produto = db.produtos.find(p => p.codigo_barras === codigo);
+            if (!produto) {
+                showMessage('❌ Código de barras não encontrado', 'error');
+                document.getElementById('codigoVenda').value = '';
+                document.getElementById('codigoVenda').focus();
+                return;
+            }
+
+            if (quantidade > produto.quantidade) {
+                showMessage(`❌ Quantidade insuficiente. Disponível: ${produto.quantidade}`, 'error');
+                return;
+            }
+
+            const itemExistente = db.vendaLista.find(p => p.id === produto.id);
+            if (itemExistente) {
+                const novaQtd = itemExistente.quantidade + quantidade;
+                if (novaQtd > produto.quantidade) {
+                    showMessage(`❌ Quantidade insuficiente. Total disponível: ${produto.quantidade}`, 'error');
+                    return;
+                }
+                itemExistente.quantidade = novaQtd;
+            } else {
+                db.vendaLista.push({ ...produto, quantidade });
+            }
+
+            document.getElementById('codigoVenda').value = '';
+            document.getElementById('quantidadeManual').value = '1';
+            renderVenda();
+            salvarDados();
+            showMessage(`✅ ${quantidade}x ${produto.nome} adicionado à venda`, 'success');
+            document.getElementById('codigoVenda').focus();
+        }
+
+        function removerVenda(produtoId) {
+            db.vendaLista = db.vendaLista.filter(p => p.id !== produtoId);
+            renderVenda();
+            salvarDados();
+        }
+
+        function adicionarProdutoSelecionado() {
+            const produtoId = parseInt(document.getElementById('selecionarProduto').value);
+            
+            if (!produtoId) {
+                return;
+            }
+
+            const quantidade = parseInt(document.getElementById('quantidadeManual').value) || 1;
+            const produto = db.produtos.find(p => p.id === produtoId);
+
+            if (!produto) {
+                showMessage('❌ Produto não encontrado', 'error');
+                return;
+            }
+
+            if (quantidade > produto.quantidade) {
+                showMessage(`❌ Quantidade insuficiente. Disponível: ${produto.quantidade}`, 'error');
+                return;
+            }
+
+            const itemExistente = db.vendaLista.find(p => p.id === produto.id);
+            if (itemExistente) {
+                const novaQtd = itemExistente.quantidade + quantidade;
+                if (novaQtd > produto.quantidade) {
+                    showMessage(`❌ Quantidade insuficiente. Total disponível: ${produto.quantidade}`, 'error');
+                    return;
+                }
+                itemExistente.quantidade = novaQtd;
+            } else {
+                db.vendaLista.push({ ...produto, quantidade });
+            }
+
+            document.getElementById('selecionarProduto').value = '';
+            document.getElementById('quantidadeManual').value = '1';
+            renderVenda();
+            salvarDados();
+            showMessage(`✅ ${quantidade}x ${produto.nome} adicionado à venda`, 'success');
+        }
+
+        function adicionarComQuantidade() {
+            const codigo = document.getElementById('codigoVenda').value.trim();
+            
+            if (codigo) {
+                // Se há código, usar o código para buscar
+                const produto = db.produtos.find(p => p.codigo_barras === codigo);
+                if (!produto) {
+                    showMessage('❌ Código de barras não encontrado', 'error');
+                    document.getElementById('codigoVenda').value = '';
+                    document.getElementById('codigoVenda').focus();
+                    return;
+                }
+
+                const quantidade = parseInt(document.getElementById('quantidadeManual').value) || 1;
+
+                if (quantidade > produto.quantidade) {
+                    showMessage(`❌ Quantidade insuficiente. Disponível: ${produto.quantidade}`, 'error');
+                    return;
+                }
+
+                const itemExistente = db.vendaLista.find(p => p.id === produto.id);
+                if (itemExistente) {
+                    const novaQtd = itemExistente.quantidade + quantidade;
+                    if (novaQtd > produto.quantidade) {
+                        showMessage(`❌ Quantidade insuficiente. Total disponível: ${produto.quantidade}`, 'error');
+                        return;
+                    }
+                    itemExistente.quantidade = novaQtd;
+                } else {
+                    db.vendaLista.push({ ...produto, quantidade });
+                }
+
+                document.getElementById('codigoVenda').value = '';
+                document.getElementById('quantidadeManual').value = '1';
+                renderVenda();
+                salvarDados();
+                showMessage(`✅ ${quantidade}x ${produto.nome} adicionado à venda`, 'success');
+                document.getElementById('codigoVenda').focus();
+            } else {
+                // Se não há código, usar seleção do dropdown
+                adicionarProdutoSelecionado();
+            }
+        }
+
+        function renderVenda() {
+            const container = document.getElementById('vendaContainer');
+            
+            if (db.vendaLista.length === 0) {
+                container.innerHTML = '<div class="empty-state">👉 Nenhum produto adicionado à venda</div>';
+                return;
+            }
+
+            const total = db.vendaLista.reduce((sum, item) => {
+                const preco = item.preco_customizado || item.preco_venda;
+                return sum + (preco * item.quantidade);
+            }, 0);
+            const totalCusto = db.vendaLista.reduce((sum, item) => sum + (item.preco_compra * item.quantidade), 0);
+            const lucroVenda = total - totalCusto;
+            
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th style="text-align: center;">Qty</th>
+                            <th style="text-align: right;">Preço Unit.</th>
+                            <th style="text-align: right;">Subtotal</th>
+                            <th style="text-align: center;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${db.vendaLista.map((item, index) => {
+                            const preco = item.preco_customizado || item.preco_venda;
+                            const setor = db.setores.find(s => s.id === item.setor_id);
+                            const permitirCustomizacao = setor && (setor.nome === 'Hortifrute' || setor.nome === 'Frios');
+                            
+                            return `
+                                <tr>
+                                    <td>
+                                        <div>${item.nome}</div>
+                                        ${permitirCustomizacao ? `<small style="color: #666;">📝 Preço customizável</small>` : ''}
+                                    </td>
+                                    <td style="text-align: center;"><span class="quantity-badge">${item.quantidade}</span></td>
+                                    <td style="text-align: right;">
+                                        ${permitirCustomizacao ? `
+                                            <input type="number" step="0.01" value="${preco.toFixed(2)}" 
+                                                onchange="atualizarPrecoCustomizado(${index}, this.value)"
+                                                style="width: 100px; padding: 6px; text-align: right; border: 2px solid #667eea;">
+                                        ` : `R$ ${preco.toFixed(2)}`}
+                                    </td>
+                                    <td style="text-align: right;"><strong>R$ ${(preco * item.quantidade).toFixed(2)}</strong></td>
+                                    <td style="text-align: center;"><button class="danger" onclick="removerVenda(${item.id})">✕</button></td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                
+                <div class="summary-card">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; text-align: center;">
+                        <div>
+                            <h3>Total Itens</h3>
+                            <p style="font-size: 24px; margin: 8px 0;">${db.vendaLista.length}</p>
+                        </div>
+                        <div>
+                            <h3>Custo</h3>
+                            <p style="font-size: 24px; margin: 8px 0;">R$ ${totalCusto.toFixed(2)}</p>
+                        </div>
+                        <div>
+                            <h3>Lucro</h3>
+                            <p style="font-size: 24px; margin: 8px 0; color: #4ade80;">R$ ${lucroVenda.toFixed(2)}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; border-top: 2px solid rgba(255, 255, 255, 0.2); padding-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 14px;">Valor Total</h3>
+                                <p style="font-size: 40px; margin: 8px 0; font-weight: 700;">R$ ${total.toFixed(2)}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(0, 0, 0, 0.2); padding: 16px; border-radius: 6px; margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px;">💳 Forma de Pagamento:</label>
+                            <select id="formaPagamento" style="width: 100%; padding: 12px; font-size: 14px; border-radius: 6px; border: none;">
+                                <option value="">— Selecione a forma de pagamento —</option>
+                                <option value="dinheiro">💵 Dinheiro</option>
+                                <option value="credito">💳 Cartão de Crédito</option>
+                                <option value="debito">💳 Cartão de Débito</option>
+                                <option value="pix">📱 PIX</option>
+                                <option value="cheque">📄 Cheque</option>
+                                <option value="boleto">📋 Boleto</option>
+                                <option value="outro">🔹 Outro</option>
+                            </select>
+                        </div>
+                        
+                        <button onclick="abrirDialogoFinalizacao()" class="success" style="width: 100%; padding: 16px 32px; font-size: 18px; font-weight: 600;">🛒 Finalizar Venda</button>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function atualizarPrecoCustomizado(index, novoPreco) {
+            const preco = parseFloat(novoPreco);
+            if (preco > 0 && db.vendaLista[index]) {
+                db.vendaLista[index].preco_customizado = preco;
+                salvarDados();
+                renderVenda();
+                showMessage(`✅ Preço atualizado para R$ ${preco.toFixed(2)}`, 'success');
+            }
+        }
+
+        function abrirDialogoFinalizacao() {
+            const formaPagamento = document.getElementById('formaPagamento').value;
+            
+            if (!formaPagamento) {
+                showMessage('❌ Por favor, selecione uma forma de pagamento', 'error');
+                return;
+            }
+
+            const total = db.vendaLista.reduce((sum, item) => sum + (item.preco_venda * item.quantidade), 0);
+            const pagamentoTexto = {
+                'dinheiro': '💵 Dinheiro',
+                'credito': '💳 Cartão de Crédito',
+                'debito': '💳 Cartão de Débito',
+                'pix': '📱 PIX',
+                'cheque': '📄 Cheque',
+                'boleto': '📋 Boleto',
+                'outro': '🔹 Outro'
+            };
+
+            if (confirm(`Finalizar venda no valor de R$ ${total.toFixed(2)} com pagamento em ${pagamentoTexto[formaPagamento]}?`)) {
+                finalizarVendaComPagamento(formaPagamento, pagamentoTexto[formaPagamento]);
+            }
+        }
+
+        function finalizarVendaComPagamento(formaPagamento, pagamentoTexto) {
+            if (db.vendaLista.length === 0) {
+                showMessage('❌ Nenhum produto na venda', 'error');
+                return;
+            }
+
+            let totalCusto = 0;
+            let totalVenda = 0;
+
+            for (const item of db.vendaLista) {
+                const preco = item.preco_customizado || item.preco_venda;
+                const custoItem = item.preco_compra * item.quantidade;
+                const vendaItem = preco * item.quantidade;
+                totalCusto += custoItem;
+                totalVenda += vendaItem;
+            }
+
+            const lucroVenda = totalVenda - totalCusto;
+
+            for (const item of db.vendaLista) {
+                const produto = db.produtos.find(p => p.id === item.id);
+                if (produto) {
+                    if (produto.quantidade < item.quantidade) {
+                        showMessage(`❌ Quantidade insuficiente de ${produto.nome}`, 'error');
+                        return;
+                    }
+                    produto.quantidade -= item.quantidade;
+                    
+                    const preco = item.preco_customizado || item.preco_venda;
+                    db.saidas.push({
+                        id: db.saidas.length + 1,
+                        produto_id: item.id,
+                        quantidade: item.quantidade,
+                        data: new Date().toLocaleString('pt-BR'),
+                        codigo_barras: item.codigo_barras,
+                        forma_pagamento: formaPagamento,
+                        valor_venda: preco * item.quantidade,
+                        valor_custo: item.preco_compra * item.quantidade,
+                        preco_unitario: preco
+                    });
+                }
+            }
+
+            showMessage(`✅ Venda de R$ ${totalVenda.toFixed(2)} finalizada com ${pagamentoTexto}! Lucro: R$ ${lucroVenda.toFixed(2)} 🎉`, 'success');
+            
+            db.vendaLista = [];
+            salvarDados();
+            renderVenda();
+            renderProdutos();
+            atualizarStatus();
+            document.getElementById('codigoVenda').focus();
+        }
+
+        function calcularLucro() {
+            let totalLucro = 0;
+            for (const saida of db.saidas) {
+                const produto = db.produtos.find(p => p.id === saida.produto_id);
+                if (produto) {
+                    const lucroUnitario = produto.preco_venda - produto.preco_compra;
+                    totalLucro += lucroUnitario * saida.quantidade;
+                }
+            }
+            showMessage(`💹 Lucro Total de Todas as Vendas: R$ ${totalLucro.toFixed(2)}`, 'info');
+        }
+
+        function relatorioVendas() {
+            if (db.saidas.length === 0) {
+                showMessage('📋 Nenhuma venda registrada ainda', 'info');
+                return;
+            }
+            const totalVendas = db.saidas.reduce((sum, s) => sum + (s.valor_venda || 0), 0);
+            const totalCusto = db.saidas.reduce((sum, s) => sum + (s.valor_custo || 0), 0);
+            showMessage(`📋 Total de ${db.saidas.length} vendas | Faturamento: R$ ${totalVendas.toFixed(2)} | Custo: R$ ${totalCusto.toFixed(2)}`, 'info');
+        }
+
+        function relatorioPagamentos() {
+            if (db.saidas.length === 0) {
+                showMessage('💳 Nenhuma venda registrada ainda', 'info');
+                return;
+            }
+
+            const pagamentos = {
+                'dinheiro': { nome: '💵 Dinheiro', icon: '💵', total: 0, qtd: 0, custo: 0 },
+                'credito': { nome: '💳 Cartão de Crédito', icon: '💳', total: 0, qtd: 0, custo: 0 },
+                'debito': { nome: '💳 Cartão de Débito', icon: '💳', total: 0, qtd: 0, custo: 0 },
+                'pix': { nome: '📱 PIX', icon: '📱', total: 0, qtd: 0, custo: 0 },
+                'cheque': { nome: '📄 Cheque', icon: '📄', total: 0, qtd: 0, custo: 0 },
+                'boleto': { nome: '📋 Boleto', icon: '📋', total: 0, qtd: 0, custo: 0 },
+                'outro': { nome: '🔹 Outro', icon: '🔹', total: 0, qtd: 0, custo: 0 }
+            };
+
+            db.saidas.forEach(saida => {
+                const forma = saida.forma_pagamento || 'outro';
+                if (pagamentos[forma]) {
+                    pagamentos[forma].total += (saida.valor_venda || 0);
+                    pagamentos[forma].custo += (saida.valor_custo || 0);
+                    pagamentos[forma].qtd++;
+                }
+            });
+
+            // Gerar HTML do relatório
+            let htmlRelatorio = `
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Relatório de Vendas por Forma de Pagamento</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+                        h1 { color: #667eea; text-align: center; }
+                        h2 { color: #764ba2; margin-top: 25px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+                        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                        th { background: #667eea; color: white; padding: 12px; text-align: left; font-weight: bold; }
+                        td { padding: 10px; border-bottom: 1px solid #ddd; }
+                        tr:hover { background: #f5f5f5; }
+                        .total { font-weight: bold; background: #f0f0f0; }
+                        .footer { margin-top: 30px; text-align: center; color: #666; font-size: 12px; }
+                        .card { background: #f9fafb; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #667eea; }
+                        .lucro { color: #10b981; font-weight: bold; }
+                        .percentual { font-size: 12px; color: #666; }
+                    </style>
+                </head>
+                <body>
+                    <h1>💳 Relatório de Vendas por Forma de Pagamento</h1>
+                    <p><strong>Data de Emissão:</strong> ${new Date().toLocaleString('pt-BR')}</p>
+                    <hr>
+                    <h2>📊 Detalhamento por Forma de Pagamento</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Forma de Pagamento</th>
+                                <th style="text-align: center;">Quantidade de Vendas</th>
+                                <th style="text-align: right;">Custo Total</th>
+                                <th style="text-align: right;">Valor Total</th>
+                                <th style="text-align: right;">Lucro</th>
+                                <th style="text-align: center;">% do Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            let totalGeralVendas = 0;
+            let totalGeralCusto = 0;
+            let totalGeralLucro = 0;
+            let totalVendas = 0;
+
+            // Calcular totais
+            Object.values(pagamentos).forEach(p => {
+                if (p.qtd > 0) {
+                    totalGeralVendas += p.total;
+                    totalGeralCusto += p.custo;
+                    totalVendas += p.qtd;
+                }
+            });
+
+            totalGeralLucro = totalGeralVendas - totalGeralCusto;
+
+            // Adicionar linhas da tabela
+            Object.entries(pagamentos).forEach(([key, p]) => {
+                if (p.qtd > 0) {
+                    const lucro = p.total - p.custo;
+                    const percentual = ((p.total / totalGeralVendas) * 100).toFixed(1);
+                    
+                    htmlRelatorio += `
+                        <tr>
+                            <td><strong>${p.nome}</strong></td>
+                            <td style="text-align: center;">${p.qtd}</td>
+                            <td style="text-align: right;">R$ ${p.custo.toFixed(2)}</td>
+                            <td style="text-align: right;"><strong>R$ ${p.total.toFixed(2)}</strong></td>
+                            <td style="text-align: right;"><span class="lucro">R$ ${lucro.toFixed(2)}</span></td>
+                            <td style="text-align: center;"><span class="percentual">${percentual}%</span></td>
+                        </tr>
+                    `;
+                }
+            });
+
+            htmlRelatorio += `
+                        </tbody>
+                    </table>
+
+                    <h2>📈 Resumo Geral</h2>
+            `;
+
+            // Cards de resumo
+            Object.entries(pagamentos).forEach(([key, p]) => {
+                if (p.qtd > 0) {
+                    const lucro = p.total - p.custo;
+                    const margemLucro = ((lucro / p.total) * 100).toFixed(1);
+                    const percentual = ((p.total / totalGeralVendas) * 100).toFixed(1);
+                    
+                    htmlRelatorio += `
+                        <div class="card">
+                            <strong>${p.nome}</strong><br>
+                            Vendas: ${p.qtd} | Faturamento: <strong>R$ ${p.total.toFixed(2)}</strong><br>
+                            Custo: R$ ${p.custo.toFixed(2)} | Lucro: <strong class="lucro">R$ ${lucro.toFixed(2)} (${margemLucro}%)</strong><br>
+                            Percentual do Total: ${percentual}%
+                        </div>
+                    `;
+                }
+            });
+
+            htmlRelatorio += `
+                    <h2>🎯 Totalizações</h2>
+                    <table>
+                        <tr class="total">
+                            <td>Total de Vendas:</td>
+                            <td>${totalVendas} vendas</td>
+                        </tr>
+                        <tr class="total">
+                            <td>Formas de Pagamento Utilizadas:</td>
+                            <td>${Object.values(pagamentos).filter(p => p.qtd > 0).length}</td>
+                        </tr>
+                        <tr class="total">
+                            <td>Custo Total:</td>
+                            <td><strong>R$ ${totalGeralCusto.toFixed(2)}</strong></td>
+                        </tr>
+                        <tr class="total">
+                            <td>Faturamento Total:</td>
+                            <td><strong>R$ ${totalGeralVendas.toFixed(2)}</strong></td>
+                        </tr>
+                        <tr class="total" style="background: #d4edda;">
+                            <td>Lucro Total:</td>
+                            <td style="color: #10b981;"><strong>R$ ${totalGeralLucro.toFixed(2)}</strong></td>
+                        </tr>
+                        <tr class="total">
+                            <td>Margem de Lucro Média:</td>
+                            <td><strong>${((totalGeralLucro / totalGeralVendas) * 100).toFixed(1)}%</strong></td>
+                        </tr>
+                    </table>
+
+                    <h2>💡 Análise</h2>
+                    <div class="card">
+                        <strong>Forma de Pagamento Mais Utilizada:</strong><br>
+            `;
+
+            let formaMaxima = Object.entries(pagamentos).filter(([k, p]) => p.qtd > 0).sort((a, b) => b[1].qtd - a[1].qtd)[0];
+            if (formaMaxima) {
+                htmlRelatorio += `${formaMaxima[1].nome} com ${formaMaxima[1].qtd} vendas (${((formaMaxima[1].total / totalGeralVendas) * 100).toFixed(1)}% do faturamento)`;
+            }
+
+            htmlRelatorio += `
+                    </div>
+                    <div class="card">
+                        <strong>Forma de Pagamento com Maior Faturamento:</strong><br>
+            `;
+
+            let formaFaturamento = Object.entries(pagamentos).filter(([k, p]) => p.qtd > 0).sort((a, b) => b[1].total - a[1].total)[0];
+            if (formaFaturamento) {
+                const lucro = formaFaturamento[1].total - formaFaturamento[1].custo;
+                htmlRelatorio += `${formaFaturamento[1].nome} com R$ ${formaFaturamento[1].total.toFixed(2)} (Lucro: R$ ${lucro.toFixed(2)})`;
+            }
+
+            htmlRelatorio += `
+                    </div>
+
+                    <div class="footer">
+                        <p>Relatório gerado automaticamente pelo sistema AMGestao</p>
+                        <p>© ${new Date().getFullYear()} - Todos os direitos reservados</p>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            // Gerar PDF
+            const blob = new Blob([htmlRelatorio], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const janela = window.open(url, '_blank');
+            
+            setTimeout(() => {
+                janela.print();
+            }, 500);
+
+            showMessage('✅ Relatório de Formas de Pagamento aberto! Use Ctrl+P para salvar como PDF', 'success');
+        }
+
+        function relatorioEstoque() {
+            const totalItems = db.produtos.reduce((sum, p) => sum + p.quantidade, 0);
+            const totalValor = db.produtos.reduce((sum, p) => sum + (p.quantidade * p.preco_compra), 0);
+            showMessage(`📦 Estoque Total: ${totalItems} itens | Valor: R$ ${totalValor.toFixed(2)}`, 'info');
+        }
+
+        function abrirRelatorioData() {
+            if (db.saidas.length === 0) {
+                showMessage('📅 Nenhuma venda registrada ainda', 'error');
+                return;
+            }
+
+            const dataInicio = prompt('Data inicial (DD/MM/YYYY):');
+            if (!dataInicio) return;
+
+            const dataFim = prompt('Data final (DD/MM/YYYY):');
+            if (!dataFim) return;
+
+            gerarRelatorioData(dataInicio, dataFim);
+        }
+
+        function gerarRelatorioData(dataInicio, dataFim) {
+            const vendas = db.saidas.filter(saida => {
+                const dataSaida = new Date(saida.data);
+                const [diaI, mesI, anoI] = dataInicio.split('/').map(Number);
+                const [diaF, mesF, anoF] = dataFim.split('/').map(Number);
+                const dataInicioObj = new Date(anoI, mesI - 1, diaI);
+                const dataFimObj = new Date(anoF, mesF - 1, diaF, 23, 59, 59);
+                
+                return dataSaida >= dataInicioObj && dataSaida <= dataFimObj;
+            });
+
+            if (vendas.length === 0) {
+                showMessage('📅 Nenhuma venda encontrada neste período', 'info');
+                return;
+            }
+
+            // Agrupar por data
+            const vendaPorData = {};
+            vendas.forEach(venda => {
+                const data = venda.data.split(',')[0];
+                if (!vendaPorData[data]) {
+                    vendaPorData[data] = [];
+                }
+                vendaPorData[data].push(venda);
+            });
+
+            // Gerar HTML do relatório
+            let htmlRelatorio = `
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Relatório de Vendas</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+                        h1 { color: #667eea; text-align: center; }
+                        h2 { color: #764ba2; margin-top: 25px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+                        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                        th { background: #667eea; color: white; padding: 12px; text-align: left; font-weight: bold; }
+                        td { padding: 10px; border-bottom: 1px solid #ddd; }
+                        tr:hover { background: #f5f5f5; }
+                        .total { font-weight: bold; background: #f0f0f0; }
+                        .footer { margin-top: 30px; text-align: center; color: #666; font-size: 12px; }
+                        .data-header { color: #764ba2; font-weight: bold; font-size: 14px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>📊 Relatório de Vendas</h1>
+                    <p><strong>Período:</strong> ${dataInicio} a ${dataFim}</p>
+                    <p><strong>Data de Emissão:</strong> ${new Date().toLocaleString('pt-BR')}</p>
+                    <hr>
+            `;
+
+            let totalGeralVendas = 0;
+            let totalGeralCusto = 0;
+            let totalGeralLucro = 0;
+            let qtdTotalVendas = 0;
+
+            Object.keys(vendaPorData).sort().forEach(data => {
+                const vendasData = vendaPorData[data];
+                let subtotalData = 0;
+                let subtotalCustoData = 0;
+                let qtdData = 0;
+
+                htmlRelatorio += `<h2 class="data-header">📅 ${data}</h2>`;
+                htmlRelatorio += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th style="text-align: center;">Quantidade</th>
+                                <th style="text-align: right;">Forma de Pagamento</th>
+                                <th style="text-align: right;">Valor Unitário</th>
+                                <th style="text-align: right;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                vendasData.forEach(venda => {
+                    const produto = db.produtos.find(p => p.id === venda.produto_id);
+                    const nomeForma = {
+                        'dinheiro': 'Dinheiro',
+                        'credito': 'Crédito',
+                        'debito': 'Débito',
+                        'pix': 'PIX',
+                        'cheque': 'Cheque',
+                        'boleto': 'Boleto',
+                        'outro': 'Outro'
+                    }[venda.forma_pagamento] || venda.forma_pagamento;
+
+                    const totalVenda = venda.valor_venda || (produto ? (venda.preco_unitario || produto.preco_venda) * venda.quantidade : 0);
+                    const totalCusto = venda.valor_custo || (produto ? produto.preco_compra * venda.quantidade : 0);
+                    const precoUnitario = venda.preco_unitario || (totalVenda / venda.quantidade);
+
+                    subtotalData += totalVenda;
+                    subtotalCustoData += totalCusto;
+                    qtdData += venda.quantidade;
+
+                    htmlRelatorio += `
+                        <tr>
+                            <td>${produto ? produto.nome : 'Produto Removido'}</td>
+                            <td style="text-align: center;">${venda.quantidade}</td>
+                            <td style="text-align: right;">${nomeForma}</td>
+                            <td style="text-align: right;">R$ ${precoUnitario.toFixed(2)}</td>
+                            <td style="text-align: right;"><strong>R$ ${totalVenda.toFixed(2)}</strong></td>
+                        </tr>
+                    `;
+                });
+
+                const lucroData = subtotalData - subtotalCustoData;
+                htmlRelatorio += `
+                        </tbody>
+                    </table>
+                    <table>
+                        <tr class="total">
+                            <td colspan="4" style="text-align: right;">Subtotal do Dia:</td>
+                            <td style="text-align: right;">R$ ${subtotalData.toFixed(2)}</td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="4" style="text-align: right;">Custo do Dia:</td>
+                            <td style="text-align: right;">R$ ${subtotalCustoData.toFixed(2)}</td>
+                        </tr>
+                        <tr class="total" style="background: #d4edda;">
+                            <td colspan="4" style="text-align: right;">Lucro do Dia:</td>
+                            <td style="text-align: right; color: #10b981;">R$ ${lucroData.toFixed(2)}</td>
+                        </tr>
+                    </table>
+                `;
+
+                totalGeralVendas += subtotalData;
+                totalGeralCusto += subtotalCustoData;
+                totalGeralLucro += lucroData;
+                qtdTotalVendas += qtdData;
+            });
+
+            htmlRelatorio += `
+                    <h2>📊 Resumo Geral</h2>
+                    <table>
+                        <tr class="total">
+                            <td>Total de Vendas:</td>
+                            <td>${Object.keys(vendaPorData).length} dias</td>
+                        </tr>
+                        <tr class="total">
+                            <td>Quantidade Total Vendida:</td>
+                            <td>${qtdTotalVendas} unidades</td>
+                        </tr>
+                        <tr class="total">
+                            <td>Faturamento Total:</td>
+                            <td><strong>R$ ${totalGeralVendas.toFixed(2)}</strong></td>
+                        </tr>
+                        <tr class="total">
+                            <td>Custo Total:</td>
+                            <td><strong>R$ ${totalGeralCusto.toFixed(2)}</strong></td>
+                        </tr>
+                        <tr class="total" style="background: #d4edda; font-size: 16px;">
+                            <td>Lucro Total:</td>
+                            <td style="color: #10b981;"><strong>R$ ${totalGeralLucro.toFixed(2)}</strong></td>
+                        </tr>
+                    </table>
+                    <div class="footer">
+                        <p>Relatório gerado automaticamente pelo sistema AMGestao</p>
+                        <p>© ${new Date().getFullYear()} - Todos os direitos reservados</p>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            // Gerar PDF
+            gerarPDF(htmlRelatorio, `Relatorio_Vendas_${dataInicio.replace(/\//g, '-')}_${dataFim.replace(/\//g, '-')}`);
+        }
+
+        function gerarPDF(htmlContent, nomeArquivo) {
+            // Criar blob HTML
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            // Abrir em nova aba para impressão
+            const janela = window.open(url, '_blank');
+            
+            setTimeout(() => {
+                janela.print();
+            }, 500);
+
+            showMessage('✅ Relatório aberto! Use Ctrl+P ou clique em Imprimir para salvar como PDF', 'success');
+        }
+
+        function limparTudo() {
+            if (confirm('⚠️ Tem certeza que deseja limpar TODOS os dados? Isso não pode ser desfeito!')) {
+                db.setores = [{ id: 1, nome: 'Eletrônicos' }, { id: 2, nome: 'Alimentos' }, { id: 3, nome: 'Vestuário' }];
+                db.produtos = [];
+                db.saidas = [];
+                db.vendaLista = [];
+                db.nextSetor = 4;
+                db.nextProduto = 5;
+                salvarDados();
+                renderSetores();
+                renderProdutos();
+                renderVenda();
+                atualizarStatus();
+                showMessage('🗑️ Dados limpos com sucesso!', 'success');
+            }
+        }
+
+        function atualizarStatus() {
+            document.getElementById('statSetores').textContent = db.setores.length;
+            document.getElementById('statProdutos').textContent = db.produtos.length;
+            document.getElementById('statVendas').textContent = db.saidas.length;
+            
+            let totalLucro = 0;
+            for (const saida of db.saidas) {
+                const produto = db.produtos.find(p => p.id === saida.produto_id);
+                if (produto) {
+                    const lucroUnitario = produto.preco_venda - produto.preco_compra;
+                    totalLucro += lucroUnitario * saida.quantidade;
+                }
+            }
+            document.getElementById('statLucro').textContent = `R$ ${totalLucro.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>

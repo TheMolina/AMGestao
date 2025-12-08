@@ -8,19 +8,37 @@ export default function App(){
   const [form, setForm] = useState({nome:'', setor_id:'', preco_compra:'', preco_venda:'', quantidade:0, codigo_barras:''})
   const [vendaCodigo, setVendaCodigo] = useState('')
   const [vendaLista, setVendaLista] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const vendaInputRef = useRef(null)
 
-  useEffect(()=>{ fetchSetores(); fetchProdutos(); }, [])
+  useEffect(()=>{ 
+    fetchSetores()
+    fetchProdutos()
+  }, [])
 
-  useEffect(()=>{ if(vendaInputRef.current) vendaInputRef.current.focus() }, [vendaInputRef])
+  useEffect(()=>{ 
+    if(vendaInputRef.current) vendaInputRef.current.focus() 
+  }, [vendaInputRef])
 
   async function fetchSetores(){
-    const r = await fetch(`${API}/setores`)
-    setSetores(await r.json())
+    try {
+      const r = await fetch(`${API}/setores`)
+      if(r.ok) setSetores(await r.json())
+      else console.error('Erro ao buscar setores')
+    } catch(err) { 
+      console.error('Erro ao buscar setores:', err)
+    }
   }
+  
   async function fetchProdutos(){
-    const r = await fetch(`${API}/produtos`)
-    setProdutos(await r.json())
+    try {
+      const r = await fetch(`${API}/produtos`)
+      if(r.ok) setProdutos(await r.json())
+      else console.error('Erro ao buscar produtos')
+    } catch(err) { 
+      console.error('Erro ao buscar produtos:', err)
+    }
   }
 
   async function criarSetor(){
@@ -74,56 +92,106 @@ export default function App(){
 
   return (
     <div className="container">
-      <h1 style={{fontSize:24, fontWeight:700}}>Gestão de Comércio — Caixa rápido</h1>
+      <h1>📦 Gestão de Comércio — Caixa Rápido</h1>
 
-      <section style={{marginTop:16}}>
-        <h2 style={{fontWeight:600}}>Setores <button onClick={criarSetor} style={{marginLeft:8}}>+ novo</button></h2>
-        <div style={{display:'flex', gap:8, marginTop:8}}>{setores.map(s=> <div key={s.id} style={{padding:6, border:'1px solid #ddd', borderRadius:6}}>{s.nome}</div>)}</div>
+      {error && <div className="status-message" style={{background:'#fee', color:'#c00'}}>{error}</div>}
+
+      <section>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+          <h2>🏢 Setores</h2>
+          <button onClick={criarSetor}>➕ Novo Setor</button>
+        </div>
+        <div style={{display:'flex', gap:8, marginTop:12, flexWrap:'wrap'}}>
+          {setores.length === 0 ? <p style={{color:'#999'}}>Nenhum setor cadastrado</p> : setores.map(s=> <div key={s.id} className="setor-box">{s.nome}</div>)}
+        </div>
       </section>
 
-      <section style={{marginTop:16}}>
-        <h2 style={{fontWeight:600}}>Cadastro de Produto</h2>
-        <form onSubmit={criarProduto} style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8, marginTop:8}}>
-          <input required placeholder="Nome" value={form.nome} onChange={e=>setForm({...form, nome:e.target.value})} />
+      <section>
+        <h2>📝 Cadastro de Produto</h2>
+        <form onSubmit={criarProduto} style={{marginTop:12}}>
+          <input required placeholder="Nome do produto" value={form.nome} onChange={e=>setForm({...form, nome:e.target.value})} />
           <select value={form.setor_id} onChange={e=>setForm({...form, setor_id:e.target.value})}>
-            <option value="">— setor —</option>
+            <option value="">— Selecione um setor —</option>
             {setores.map(s=> <option key={s.id} value={s.id}>{s.nome}</option>)}
           </select>
-          <input required placeholder="Preço compra" value={form.preco_compra} onChange={e=>setForm({...form, preco_compra:e.target.value})} />
-          <input required placeholder="Preço venda" value={form.preco_venda} onChange={e=>setForm({...form, preco_venda:e.target.value})} />
-          <input required placeholder="Quantidade" type="number" value={form.quantidade} onChange={e=>setForm({...form, quantidade:e.target.value})} />
-          <input placeholder="Código de barras" value={form.codigo_barras} onChange={e=>setForm({...form, codigo_barras:e.target.value})} />
+          <input required type="number" step="0.01" placeholder="Preço de compra (R$)" value={form.preco_compra} onChange={e=>setForm({...form, preco_compra:e.target.value})} />
+          <input required type="number" step="0.01" placeholder="Preço de venda (R$)" value={form.preco_venda} onChange={e=>setForm({...form, preco_venda:e.target.value})} />
+          <input required type="number" placeholder="Quantidade em estoque" value={form.quantidade} onChange={e=>setForm({...form, quantidade:e.target.value})} />
+          <input type="text" placeholder="Código de barras (opcional)" value={form.codigo_barras} onChange={e=>setForm({...form, codigo_barras:e.target.value})} />
           <div style={{gridColumn:'1 / -1', marginTop:8}}>
-            <button type="submit">Criar Produto</button>
+            <button type="submit" style={{padding:'12px 24px', fontSize:'16px'}}>✅ Criar Produto</button>
           </div>
         </form>
       </section>
 
-      <section style={{marginTop:24}}>
-        <h2 style={{fontWeight:600}}>Caixa / Vendas</h2>
-        <div style={{marginTop:8}}>
-          <input ref={vendaInputRef} placeholder="Passe o leitor de código aqui (ou digite)" value={vendaCodigo} onChange={e=>setVendaCodigo(e.target.value)} onKeyDown={handleVendaScan} style={{width:'100%', padding:8, border:'1px solid #ccc', borderRadius:6}} />
-        </div>
+      <section>
+        <h2>💰 Caixa / Vendas</h2>
         <div style={{marginTop:12}}>
-          <table>
-            <thead><tr><th>Produto</th><th>Quantidade</th><th>Preço</th></tr></thead>
-            <tbody>
-              {vendaLista.map(item=> (
-                <tr key={item.id}><td>{item.nome}</td><td>{item.quantidade}</td><td>{(item.preco_venda*item.quantidade).toFixed(2)}</td></tr>
-              ))}
-            </tbody>
-          </table>
-          <div style={{marginTop:8}}>
-            <button onClick={finalizarVenda} style={{padding:'8px 12px'}}>Finalizar Venda</button>
+          <input 
+            ref={vendaInputRef} 
+            placeholder="Passe o leitor de código de barras aqui (ou digite manualmente)" 
+            value={vendaCodigo} 
+            onChange={e=>setVendaCodigo(e.target.value)} 
+            onKeyDown={handleVendaScan}
+            style={{width:'100%', padding:12, fontSize:'16px'}}
+          />
+        </div>
+        
+        {vendaLista.length === 0 ? (
+          <div style={{marginTop:16, textAlign:'center', color:'#999', padding:'24px'}}>
+            <p>Nenhum produto adicionado à venda</p>
           </div>
+        ) : (
+          <div style={{marginTop:16}}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th style={{textAlign:'center'}}>Quantidade</th>
+                  <th style={{textAlign:'right'}}>Preço Unit.</th>
+                  <th style={{textAlign:'right'}}>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {vendaLista.map(item=> (
+                  <tr key={item.id}>
+                    <td>{item.nome}</td>
+                    <td style={{textAlign:'center'}}>{item.quantidade}</td>
+                    <td style={{textAlign:'right'}}>R$ {item.preco_venda.toFixed(2)}</td>
+                    <td style={{textAlign:'right'}}>R$ {(item.preco_venda*item.quantidade).toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div style={{marginTop:16, display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+              <strong>Total: R$ {vendaLista.reduce((sum, item) => sum + (item.preco_venda * item.quantidade), 0).toFixed(2)}</strong>
+              <button onClick={finalizarVenda} style={{padding:'12px 24px', fontSize:'16px', background:'#28a745'}}>🛒 Finalizar Venda</button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section>
+        <h2>📊 Relatório Rápido</h2>
+        <div className="button-group">
+          <button onClick={async ()=>{ 
+            try {
+              const r = await fetch(`${API}/relatorio/lucro`)
+              const j = await r.json()
+              alert('Lucro total: R$ '+j.total_lucro.toFixed(2))
+            } catch(err) {
+              alert('Erro ao calcular lucro')
+            }
+          }}>Calcular Lucro</button>
+          <button onClick={() => alert('Recursos de relatório em desenvolvimento')}>Ver Histórico de Vendas</button>
         </div>
       </section>
 
-      <section style={{marginTop:24}}>
-        <h2 style={{fontWeight:600}}>Relatório rápido</h2>
-        <div style={{marginTop:8}}>
-          <button onClick={async ()=>{ const r = await fetch(`${API}/relatorio/lucro`); const j = await r.json(); alert('Lucro total: R$ '+j.total_lucro.toFixed(2)) }} >Calcular agora</button>
-        </div>
+      <section style={{background:'#e7f3ff', border:'1px solid #b3d9ff', marginTop:24}}>
+        <h3 style={{marginTop:0}}>ℹ️ Status</h3>
+        <p><strong>API:</strong> {API}</p>
+        <p><strong>Setores cadastrados:</strong> {setores.length}</p>
+        <p><strong>Produtos cadastrados:</strong> {produtos.length}</p>
       </section>
     </div>
   )
