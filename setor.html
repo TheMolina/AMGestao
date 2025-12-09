@@ -3,34 +3,89 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Produtos do Setor</title>
+<title>Produtos do Setor — AMGestao</title>
 <style>
-    body{font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif; margin:20px; background:#f5f5f5}
-    .container{max-width:1000px;margin:0 auto;background:#fff;padding:20px;border-radius:8px}
-    table{width:100%;border-collapse:collapse;margin-top:12px}
-    th,td{padding:10px;border-bottom:1px solid #eee;text-align:left}
-    thead{background:#f0f0f0}
-    .empty{color:#666;padding:20px;text-align:center}
-    a.button{display:inline-block;padding:8px 12px;background:#007bff;color:#fff;border-radius:4px;text-decoration:none}
-    .btn-danger{background:#dc3545;color:#fff;border:none;padding:6px 8px;border-radius:4px;cursor:pointer}
-    .btn-primary{background:#007bff;color:#fff;border:none;padding:6px 8px;border-radius:4px;cursor:pointer}
-    .small-input{width:90px;padding:6px;border:1px solid #ddd;border-radius:4px}
+    /* Reaproveita visual do index */
+    * { box-sizing: border-box; }
+    :root{
+        --brown-900: #4a2e23;
+        --brown-700: #6b3e2d;
+        --muted: #7a6a63;
+        --bg: #fffdfb;
+    }
+    body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        background: #f5f5f4;
+        color: #35231b;
+    }
+    .container {
+        max-width: 1000px;
+        margin: 20px auto;
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 18px;
+        box-shadow: 0 8px 30px rgba(30,20,15,0.06);
+    }
+    .topbar {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:12px 18px;
+        background: var(--brown-900);
+        color:#fff;
+        border-radius:8px;
+        margin-bottom:12px;
+    }
+    .topbar .title { font-size:16px; font-weight:600; }
+    a.button {
+        display:inline-block;
+        padding:8px 12px;
+        background:#fff;
+        color:var(--brown-900);
+        border-radius:6px;
+        text-decoration:none;
+        font-weight:600;
+    }
+
+    table{width:100%;border-collapse:collapse;margin-top:12px;background:#fff;border-radius:6px;overflow:hidden}
+    thead{background:#faf7f5;color:var(--muted)}
+    th,td{padding:10px;border-bottom:1px solid #f3efec;text-align:left}
+    .empty{color:var(--muted);padding:20px;text-align:center}
+    .btn { background:var(--brown-700); color:#fff; border:none; padding:8px 10px; border-radius:6px; cursor:pointer; }
+    .btn.ghost { background:transparent; border:1px solid #efe7e3; color:var(--brown-700); }
+    .btn-danger{background:#dc3545;color:#fff;border:none;padding:6px 8px;border-radius:6px;cursor:pointer}
+    .btn-primary{background:#007bff;color:#fff;border:none;padding:6px 8px;border-radius:6px;cursor:pointer}
+    .small-input{width:120px;padding:6px;border:1px solid #eee;border-radius:6px}
     #message{margin-top:8px;color:green}
+    .actions-row{display:flex;gap:8px;align-items:center}
 </style>
 </head>
 <body>
-<div class="container">
-    <a href="index.html" class="button">← Voltar</a>
-    <h1 id="titulo">Produtos</h1>
-    <div id="message"></div>
-    <div id="conteudo"></div>
-</div>
+    <div class="container">
+        <div class="topbar">
+            <div class="title">📁 Produtos do Setor</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <a class="button" href="index.html">← Voltar</a>
+            </div>
+        </div>
+
+        <h2 id="titulo">Produtos</h2>
+        <div id="message"></div>
+        <div id="conteudo"></div>
+    </div>
 
 <script>
 function getQuery(name) {
     const params = new URLSearchParams(location.search);
     return params.get(name);
 }
+
+function carregarDB() {
+    const saved = localStorage.getItem('amgestao_db');
+    return saved ? JSON.parse(saved) : { setores: [], produtos: [], saidas: [], nextSetor:1, nextProduto:1, vendaLista: [] };
+}
+function salvarDB(db){ localStorage.setItem('amgestao_db', JSON.stringify(db)); }
 
 function showMessage(txt, isError = false) {
     const el = document.getElementById('message');
@@ -39,34 +94,27 @@ function showMessage(txt, isError = false) {
     setTimeout(()=> { el.textContent = ''; }, 3000);
 }
 
-function carregarDB() {
-    const saved = localStorage.getItem('amgestao_db');
-    return saved ? JSON.parse(saved) : { setores: [], produtos: [] };
-}
-
-function salvarDB(db) {
-    localStorage.setItem('amgestao_db', JSON.stringify(db));
-}
-
 const setorId = parseInt(getQuery('setor_id'));
 let db = carregarDB();
-const setor = db.setores.find(s => s.id === setorId);
+let setor = db.setores.find(s => s.id === setorId);
 
 document.getElementById('titulo').textContent = setor ? `Produtos — ${setor.nome}` : 'Produtos — Setor não encontrado';
 
-const conteudo = document.getElementById('conteudo');
-
 function render() {
-    db = carregarDB(); // recarrega para garantir sincronia
+    db = carregarDB(); // recarrega
+    setor = db.setores.find(s => s.id === setorId);
+    const conteudo = document.getElementById('conteudo');
     if (!setor) {
         conteudo.innerHTML = '<div class="empty">Setor não encontrado ou inválido.</div>';
         return;
     }
+
     const produtos = db.produtos.filter(p => p.setor_id === setor.id);
     if (produtos.length === 0) {
         conteudo.innerHTML = '<div class="empty">Nenhum produto cadastrado neste setor.</div>';
         return;
     }
+
     let html = '<table><thead><tr><th>Nome</th><th>Código</th><th>Tipo</th><th>Peso/unid</th><th>Preço</th><th>Quantidade</th><th>Ações</th></tr></thead><tbody>';
     for (const p of produtos) {
         html += `<tr id="prod-row-${p.id}">
@@ -75,12 +123,11 @@ function render() {
             <td>${p.vendido_por === 'peso' ? 'Peso (kg)' : 'Unidade'}</td>
             <td>${p.peso_unidade ? p.peso_unidade + ' kg' : '-'}</td>
             <td>R$ ${Number(p.preco_venda || 0).toFixed(2)}</td>
-            <td>
-                <input id="qty-${p.id}" class="small-input" type="number" step="${p.vendido_por === 'peso' ? '0.001' : '1'}" min="0" value="${p.quantidade ?? 0}">
-            </td>
-            <td style="display:flex;gap:6px;">
+            <td><input id="qty-${p.id}" class="small-input" type="number" step="${p.vendido_por === 'peso' ? '0.001' : '1'}" min="0" value="${p.quantidade ?? 0}"></td>
+            <td class="actions-row">
                 <button class="btn-primary" onclick="salvarQuantidade(${p.id})">Salvar Qtd</button>
                 <button class="btn-danger" onclick="excluirProduto(${p.id})">Excluir</button>
+                <button class="btn ghost" onclick="abrirEdicao(${p.id})">Editar</button>
             </td>
         </tr>`;
     }
@@ -93,10 +140,9 @@ function salvarQuantidade(produtoId) {
     const p = db.produtos.find(x => x.id === produtoId);
     if (!p) { showMessage('Produto não encontrado.', true); return; }
     const input = document.getElementById(`qty-${produtoId}`);
-    if (!input) { showMessage('Campo de quantidade não encontrado.', true); return; }
+    if (!input) { showMessage('Campo não encontrado.', true); return; }
     const val = parseFloat(input.value);
     if (isNaN(val) || val < 0) { showMessage('Informe uma quantidade válida.', true); return; }
-    // Para produtos vendidos por unidade, arredondar para inteiro
     p.quantidade = (p.vendido_por === 'peso') ? Number(val) : Math.round(val);
     salvarDB(db);
     showMessage('Quantidade atualizada.');
@@ -114,7 +160,14 @@ function excluirProduto(produtoId) {
     render();
 }
 
-// renderizar inicial
+function abrirEdicao(produtoId) {
+    // Preenche formulário no index.html: abrimos index.html e preenchemos via localStorage sinalizando edição
+    // Simples: marcar produto para edição no localStorage e abrir index
+    db = carregarDB();
+    localStorage.setItem('amgestao_edit_produto', String(produtoId));
+    window.open('index.html', '_blank');
+}
+
 render();
 </script>
 </body>
