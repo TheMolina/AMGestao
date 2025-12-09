@@ -12,12 +12,17 @@
     thead{background:#f0f0f0}
     .empty{color:#666;padding:20px;text-align:center}
     a.button{display:inline-block;padding:8px 12px;background:#007bff;color:#fff;border-radius:4px;text-decoration:none}
+    .btn-danger{background:#dc3545;color:#fff;border:none;padding:6px 8px;border-radius:4px;cursor:pointer}
+    .btn-primary{background:#007bff;color:#fff;border:none;padding:6px 8px;border-radius:4px;cursor:pointer}
+    .small-input{width:90px;padding:6px;border:1px solid #ddd;border-radius:4px}
+    #message{margin-top:8px;color:green}
 </style>
 </head>
 <body>
 <div class="container">
     <a href="index.html" class="button">← Voltar</a>
     <h1 id="titulo">Produtos</h1>
+    <div id="message"></div>
     <div id="conteudo"></div>
 </div>
 
@@ -27,36 +32,90 @@ function getQuery(name) {
     return params.get(name);
 }
 
-const saved = localStorage.getItem('amgestao_db');
-const db = saved ? JSON.parse(saved) : { setores: [], produtos: [] };
+function showMessage(txt, isError = false) {
+    const el = document.getElementById('message');
+    el.textContent = txt;
+    el.style.color = isError ? 'crimson' : 'green';
+    setTimeout(()=> { el.textContent = ''; }, 3000);
+}
+
+function carregarDB() {
+    const saved = localStorage.getItem('amgestao_db');
+    return saved ? JSON.parse(saved) : { setores: [], produtos: [] };
+}
+
+function salvarDB(db) {
+    localStorage.setItem('amgestao_db', JSON.stringify(db));
+}
 
 const setorId = parseInt(getQuery('setor_id'));
+let db = carregarDB();
 const setor = db.setores.find(s => s.id === setorId);
 
 document.getElementById('titulo').textContent = setor ? `Produtos — ${setor.nome}` : 'Produtos — Setor não encontrado';
 
 const conteudo = document.getElementById('conteudo');
 
-if (!setor) {
-    conteudo.innerHTML = '<div class="empty">Setor não encontrado ou inválido.</div>';
-} else {
+function render() {
+    db = carregarDB(); // recarrega para garantir sincronia
+    if (!setor) {
+        conteudo.innerHTML = '<div class="empty">Setor não encontrado ou inválido.</div>';
+        return;
+    }
     const produtos = db.produtos.filter(p => p.setor_id === setor.id);
     if (produtos.length === 0) {
         conteudo.innerHTML = '<div class="empty">Nenhum produto cadastrado neste setor.</div>';
-    } else {
-        let html = '<table><thead><tr><th>Nome</th><th>Código</th><th>Preço</th><th>Quantidade</th></tr></thead><tbody>';
-        for (const p of produtos) {
-            html += `<tr>
-                        <td>${p.nome}</td>
-                        <td>${p.codigo_barras || ''}</td>
-                        <td>R$ ${Number(p.preco_venda || 0).toFixed(2)}</td>
-                        <td>${p.quantidade ?? 0}</td>
-                    </tr>`;
-        }
-        html += '</tbody></table>';
-        conteudo.innerHTML = html;
+        return;
     }
+    let html = '<table><thead><tr><th>Nome</th><th>Código</th><th>Tipo</th><th>Peso/unid</th><th>Preço</th><th>Quantidade</th><th>Ações</th></tr></thead><tbody>';
+    for (const p of produtos) {
+        html += `<tr id="prod-row-${p.id}">
+            <td>${p.nome}</td>
+            <td>${p.codigo_barras || ''}</td>
+            <td>${p.vendido_por === 'peso' ? 'Peso (kg)' : 'Unidade'}</td>
+            <td>${p.peso_unidade ? p.peso_unidade + ' kg' : '-'}</td>
+            <td>R$ ${Number(p.preco_venda || 0).toFixed(2)}</td>
+            <td>
+                <input id="qty-${p.id}" class="small-input" type="number" step="${p.vendido_por === 'peso' ? '0.001' : '1'}" min="0" value="${p.quantidade ?? 0}">
+            </td>
+            <td style="display:flex;gap:6px;">
+                <button class="btn-primary" onclick="salvarQuantidade(${p.id})">Salvar Qtd</button>
+                <button class="btn-danger" onclick="excluirProduto(${p.id})">Excluir</button>
+            </td>
+        </tr>`;
+    }
+    html += '</tbody></table>';
+    conteudo.innerHTML = html;
 }
+
+function salvarQuantidade(produtoId) {
+    db = carregarDB();
+    const p = db.produtos.find(x => x.id === produtoId);
+    if (!p) { showMessage('Produto não encontrado.', true); return; }
+    const input = document.getElementById(`qty-${produtoId}`);
+    if (!input) { showMessage('Campo de quantidade não encontrado.', true); return; }
+    const val = parseFloat(input.value);
+    if (isNaN(val) || val < 0) { showMessage('Informe uma quantidade válida.', true); return; }
+    // Para produtos vendidos por unidade, arredondar para inteiro
+    p.quantidade = (p.vendido_por === 'peso') ? Number(val) : Math.round(val);
+    salvarDB(db);
+    showMessage('Quantidade atualizada.');
+    render();
+}
+
+function excluirProduto(produtoId) {
+    db = carregarDB();
+    const p = db.produtos.find(x => x.id === produtoId);
+    if (!p) { showMessage('Produto não encontrado.', true); return; }
+    if (!confirm(`Excluir o produto "${p.nome}"? Esta ação não pode ser desfeita.`)) return;
+    db.produtos = db.produtos.filter(x => x.id !== produtoId);
+    salvarDB(db);
+    showMessage('Produto excluído.');
+    render();
+}
+
+// renderizar inicial
+render();
 </script>
 </body>
 </html>
