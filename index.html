@@ -202,16 +202,43 @@
         <section>
             <h2>📝 Cadastro de Produto</h2>
             <form onsubmit="criarProduto(event)" style="margin-top: 12px;">
-                <input type="text" id="nomeProduto" placeholder="Nome do produto" required>
-                <select id="setorProduto">
-                    <option value="">— Selecione um setor —</option>
-                </select>
-                <input type="number" id="precoCompra" step="0.01" placeholder="Preço de compra (R$)" required>
-                <input type="number" id="precoVenda" step="0.01" placeholder="Preço de venda (R$)" required>
-                <input type="number" id="quantidadeProduto" placeholder="Quantidade em estoque" required>
-                <input type="text" id="codigoProduto" placeholder="Código de barras (opcional)">
-                <div style="grid-column: 1 / -1; margin-top: 8px;">
-                    <button type="submit" style="padding: 12px 24px; font-size: 16px;">✅ Criar Produto</button>
+                <div>
+                    <label>Nome</label><br>
+                    <input id="produtoNome" required />
+                </div>
+                <div>
+                    <label>Código de Barras</label><br>
+                    <input id="produtoCodigo" />
+                </div>
+                <div>
+                    <label>Setor</label><br>
+                    <select id="setorProduto"></select>
+                </div>
+                <div>
+                    <label>Preço de Compra (R$)</label><br>
+                    <input id="produtoPrecoCompra" type="number" step="0.01" min="0" required />
+                </div>
+                <div>
+                    <label>Preço de Venda (R$)</label><br>
+                    <input id="produtoPrecoVenda" type="number" step="0.01" min="0" required />
+                </div>
+                <div>
+                    <label>Quantidade em Estoque</label><br>
+                    <input id="produtoQuantidade" type="number" step="1" min="0" value="0" required />
+                </div>
+                <div>
+                    <label>Tipo de venda</label><br>
+                    <select id="produtoTipoVenda">
+                        <option value="unidade">Unidade</option>
+                        <option value="peso">Peso (kg)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Peso por unidade (kg) — opcional</label><br>
+                    <input id="produtoPesoUnidade" type="number" step="0.001" min="0" placeholder="ex: 0.250" />
+                </div>
+                <div style="grid-column: 1 / -1; margin-top:8px;">
+                    <button type="submit" class="success">Cadastrar Produto</button>
                 </div>
             </form>
         </section>
@@ -219,21 +246,24 @@
         <section>
             <h2>💰 Caixa / Vendas</h2>
             <div style="margin-top: 12px;">
-                <input 
-                    type="text" 
-                    id="codigoVenda" 
-                    placeholder="Passe o leitor de código de barras aqui (ou digite manualmente)" 
-                    style="width: 100%; padding: 12px; font-size: 16px;"
-                    onkeypress="if(event.key === 'Enter') scanVenda();"
-                >
-            </div>
-            
-            <div id="vendaContainer" style="margin-top: 16px;">
-                <div class="empty-state">
-                    <p>Nenhum produto adicionado à venda</p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                    <div>
+                        <label>Produto</label><br>
+                        <select id="vendaProdutoSelect" style="min-width:260px;"></select>
+                    </div>
+                    <div>
+                        <label>Quantidade / Peso</label><br>
+                        <input id="vendaQtd" type="number" step="any" min="0.001" placeholder="Qtd (un) ou Kg" />
+                    </div>
+                    <div style="align-self:end;">
+                        <button onclick="scanVenda()">Adicionar</button>
+                    </div>
                 </div>
             </div>
-        </section>
+             
+             <div id="vendaContainer" style="margin-top: 16px;">
+             </div>
+         </section>
 
         <section>
             <h2>📊 Relatório Rápido</h2>
@@ -255,22 +285,13 @@
     <script>
         // Database em memória
         const db = {
-            setores: [
-                { id: 1, nome: 'Eletrônicos' },
-                { id: 2, nome: 'Alimentos' },
-                { id: 3, nome: 'Vestuário' }
-            ],
-            produtos: [
-                { id: 1, nome: 'Notebook', setor_id: 1, preco_compra: 2000, preco_venda: 3000, quantidade: 5, codigo_barras: '123456' },
-                { id: 2, nome: 'Teclado', setor_id: 1, preco_compra: 100, preco_venda: 150, quantidade: 20, codigo_barras: '123457' },
-                { id: 3, nome: 'Arroz', setor_id: 2, preco_compra: 3, preco_venda: 5, quantidade: 100, codigo_barras: '123458' },
-                { id: 4, nome: 'Camiseta', setor_id: 3, preco_compra: 20, preco_venda: 50, quantidade: 50, codigo_barras: '123459' }
-            ],
+            setores: [],
+            produtos: [],
             saidas: [],
-            nextSetor: 4,
-            nextProduto: 5,
-            vendaLista: []
-        };
+            nextSetor: 1,
+            nextProduto: 1,
+             vendaLista: []
+         };
 
         // Salvar dados no localStorage
         function salvarDados() {
@@ -305,7 +326,7 @@
         function renderSetores() {
             const container = document.getElementById('setoresContainer');
             const select = document.getElementById('setorProduto');
-            
+
             container.innerHTML = '';
             if (!select) {
                 // se o formulário ainda não tem o select, apenas ignore
@@ -326,10 +347,11 @@
                             <strong>${s.nome}</strong>
                             <small style="color:#666;margin-left:6px;">(${produtosCount})</small>
                         </div>
-                        <div style="margin-top:8px;">
+                        <div style="margin-top:8px;display:flex;gap:6px;">
                             <a href="setor.html?setor_id=${s.id}" target="_blank" style="text-decoration:none;">
                                 <button type="button">Abrir produtos</button>
                             </a>
+                            <button type="button" style="background:#dc3545;border:none;color:#fff;padding:8px 10px;border-radius:4px;" onclick="excluirSetor(${s.id})">Excluir</button>
                         </div>
                     </div>
                 `;
@@ -342,8 +364,61 @@
             atualizarStatus();
         }
 
+        function excluirSetor(setorId) {
+            const setor = db.setores.find(s => s.id === setorId);
+            if (!setor) { showMessage('Setor não encontrado.', 'error'); return; }
+
+            const produtosNoSetor = db.produtos.filter(p => p.setor_id === setorId);
+            if (produtosNoSetor.length > 0) {
+                const confirmMsg = `O setor "${setor.nome}" possui ${produtosNoSetor.length} produto(s). Ao excluir, os produtos ficarão sem setor. Deseja continuar?`;
+                if (!confirm(confirmMsg)) return;
+                // desassocia produtos (mantém produtos)
+                produtosNoSetor.forEach(p => { p.setor_id = null; });
+            }
+
+            db.setores = db.setores.filter(s => s.id !== setorId);
+            salvarDados();
+            showMessage('Setor removido.', 'success');
+            renderSetores();
+            renderProdutos();
+        }
+
         function renderProdutos() {
-            // Update select options
+            const tbody = document.getElementById('produtosTableBody');
+            // se não existir tabela detalhada, apenas atualiza selects
+            const selectVenda = document.getElementById('vendaProdutoSelect');
+            const selectCadastroSetor = document.getElementById('setorProduto');
+
+            if (selectVenda) {
+                selectVenda.innerHTML = '<option value="">— Selecione um produto —</option>' + db.produtos.map(p => {
+                    return `<option value="${p.id}">${p.nome} — R$ ${Number(p.preco_venda).toFixed(2)} — ${p.vendido_por === 'peso' ? 'kg' : 'un'}</option>`;
+                }).join('');
+            }
+
+            if (selectCadastroSetor) {
+                selectCadastroSetor.innerHTML = '<option value="">— Selecione um setor —</option>' + db.setores.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
+            }
+
+            // atualizar listagem principal de produtos se houver tabela
+            if (tbody) {
+                tbody.innerHTML = '';
+                if (db.produtos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhum produto cadastrado.</td></tr>';
+                } else {
+                    for (const p of db.produtos) {
+                        const setor = db.setores.find(s => s.id === p.setor_id);
+                        tbody.innerHTML += `<tr>
+                            <td>${p.nome}</td>
+                            <td>${p.codigo_barras || ''}</td>
+                            <td>R$ ${Number(p.preco_venda).toFixed(2)}</td>
+                            <td>${p.quantidade ?? 0}</td>
+                            <td>${p.vendido_por === 'peso' ? 'Peso (kg)' : 'Unidade'}</td>
+                            <td>${p.peso_unidade ? p.peso_unidade + ' kg' : '-'}</td>
+                        </tr>`;
+                    }
+                }
+            }
+            atualizarStatus();
         }
 
         function criarSetor() {
@@ -359,113 +434,133 @@
 
         function criarProduto(event) {
             event.preventDefault();
-            
-            const nome = document.getElementById('nomeProduto').value;
-            const setor_id = document.getElementById('setorProduto').value || null;
-            const preco_compra = parseFloat(document.getElementById('precoCompra').value);
-            const preco_venda = parseFloat(document.getElementById('precoVenda').value);
-            const quantidade = parseInt(document.getElementById('quantidadeProduto').value);
-            const codigo_barras = document.getElementById('codigoProduto').value || null;
+            const nome = document.getElementById('produtoNome').value.trim();
+            const codigo = document.getElementById('produtoCodigo').value.trim();
+            const setorId = Number(document.getElementById('setorProduto').value) || null;
+            const precoCompra = parseFloat(document.getElementById('produtoPrecoCompra').value) || 0;
+            const precoVenda = parseFloat(document.getElementById('produtoPrecoVenda').value) || 0;
+            const quantidade = parseFloat(document.getElementById('produtoQuantidade').value) || 0;
+            const vendido_por = document.getElementById('produtoTipoVenda').value || 'unidade';
+            const peso_unidade = parseFloat(document.getElementById('produtoPesoUnidade').value) || null;
 
-            if (!nome || !preco_compra || !preco_venda) {
-                showMessage('❌ Preencha todos os campos obrigatórios', 'error');
-                return;
-            }
-
-            if (codigo_barras && db.produtos.find(p => p.codigo_barras === codigo_barras)) {
-                showMessage('❌ Código de barras já cadastrado', 'error');
-                return;
-            }
-
-            const novoProduto = {
+            const produto = {
                 id: db.nextProduto++,
                 nome,
-                setor_id: setor_id ? parseInt(setor_id) : null,
-                preco_compra,
-                preco_venda,
+                codigo_barras: codigo,
+                setor_id: setorId,
+                preco_compra: precoCompra,
+                preco_venda: precoVenda,
                 quantidade,
-                codigo_barras
+                vendido_por: vendido_por === 'peso' ? 'peso' : 'unidade',
+                peso_unidade: peso_unidade > 0 ? peso_unidade : null
             };
-
-            db.produtos.push(novoProduto);
+            db.produtos.push(produto);
             salvarDados();
-            
-            // Limpar formulário
-            event.target.reset();
+            showMessage('Produto cadastrado.', 'success');
+            // limpar form
+            document.getElementById('produtoNome').value = '';
+            document.getElementById('produtoCodigo').value = '';
+            document.getElementById('produtoPrecoCompra').value = '';
+            document.getElementById('produtoPrecoVenda').value = '';
+            document.getElementById('produtoQuantidade').value = 0;
+            document.getElementById('produtoPesoUnidade').value = '';
+            renderSetores();
             renderProdutos();
-            atualizarStatus();
-            showMessage(`✅ Produto "${nome}" criado com sucesso!`, 'success');
         }
 
         function scanVenda() {
-            const codigo = document.getElementById('codigoVenda').value.trim();
-            if (!codigo) return;
+            const sel = document.getElementById('vendaProdutoSelect');
+            const produtoId = Number(sel.value);
+            if (!produtoId) { showMessage('Selecione um produto', 'error'); return; }
+            const produto = db.produtos.find(p => p.id === produtoId);
+            if (!produto) { showMessage('Produto não encontrado', 'error'); return; }
 
-            const produto = db.produtos.find(p => p.codigo_barras === codigo);
-            if (!produto) {
-                showMessage('❌ Produto não encontrado', 'error');
-                document.getElementById('codigoVenda').value = '';
-                return;
-            }
+            const input = document.getElementById('vendaQtd');
+            const valor = parseFloat(input.value);
+            if (!valor || valor <= 0) { showMessage('Informe quantidade ou peso válido', 'error'); return; }
 
-            const itemExistente = db.vendaLista.find(p => p.id === produto.id);
-            if (itemExistente) {
-                itemExistente.quantidade++;
+            // calcular total conforme tipo
+            let quantidade = 0;
+            let peso = null;
+            if (produto.vendido_por === 'peso') {
+                peso = valor; // em kg
+                // opcionalmente, reduzir estoque por peso usando peso_unidade se estiver em "unidades"
             } else {
-                db.vendaLista.push({ ...produto, quantidade: 1 });
+                quantidade = valor;
             }
 
-            document.getElementById('codigoVenda').value = '';
-            renderVenda();
+            // adicionar à lista de venda
+            db.vendaLista.push({
+                produtoId: produto.id,
+                nome: produto.nome,
+                preco_venda: produto.preco_venda,
+                vendido_por: produto.vendido_por,
+                quantidade: quantidade,
+                peso: peso
+            });
+
+            // decrementar estoque quando aplicável (simples)
+            if (produto.vendido_por === 'unidade') {
+                produto.quantidade = Math.max(0, (produto.quantidade || 0) - quantidade);
+            } else if (produto.vendido_por === 'peso' && produto.peso_unidade) {
+                // se estoque for contado por unidades e peso_unidade informado, reduzir por número de unidades equivalentes
+                // caso contrário, não altera quantidade (sistema simples)
+                // Ex.: se peso_unidade = 0.5kg e vender 1.0kg => reduz 2 unidades
+                if (produto.quantidade && produto.peso_unidade > 0) {
+                    const unidades = Math.round(peso / produto.peso_unidade);
+                    produto.quantidade = Math.max(0, produto.quantidade - unidades);
+                }
+            }
+
             salvarDados();
+            input.value = '';
+            renderVenda();
+            renderProdutos();
         }
 
-        function removerVenda(produtoId) {
-            db.vendaLista = db.vendaLista.filter(p => p.id !== produtoId);
-            renderVenda();
+        function removerVenda(index) {
+            if (index < 0 || index >= db.vendaLista.length) return;
+            // restaurar estoque básico ao remover item (apenas para unidade simples)
+            const item = db.vendaLista[index];
+            const produto = db.produtos.find(p => p.id === item.produtoId);
+            if (produto) {
+                if (item.vendido_por === 'unidade') {
+                    produto.quantidade = (produto.quantidade || 0) + (item.quantidade || 0);
+                } else if (item.vendido_por === 'peso' && produto.peso_unidade && produto.quantidade !== undefined) {
+                    const unidades = item.peso && produto.peso_unidade ? Math.round(item.peso / produto.peso_unidade) : 0;
+                    produto.quantidade = (produto.quantidade || 0) + unidades;
+                }
+            }
+            db.vendaLista.splice(index, 1);
             salvarDados();
+            renderVenda();
+            renderProdutos();
         }
 
         function renderVenda() {
             const container = document.getElementById('vendaContainer');
-            
-            if (db.vendaLista.length === 0) {
-                container.innerHTML = '<div class="empty-state"><p>Nenhum produto adicionado à venda</p></div>';
+            if (!db.vendaLista || db.vendaLista.length === 0) {
+                container.innerHTML = '<div class="empty-state">Carrinho vazio.</div>';
+                atualizarStatus();
                 return;
             }
-
-            const total = db.vendaLista.reduce((sum, item) => sum + (item.preco_venda * item.quantidade), 0);
-            
-            const html = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Produto</th>
-                            <th style="text-align: center;">Quantidade</th>
-                            <th style="text-align: right;">Preço Unit.</th>
-                            <th style="text-align: right;">Subtotal</th>
-                            <th style="text-align: center;">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${db.vendaLista.map(item => `
-                            <tr>
-                                <td>${item.nome}</td>
-                                <td style="text-align: center;">${item.quantidade}</td>
-                                <td style="text-align: right;">R$ ${item.preco_venda.toFixed(2)}</td>
-                                <td style="text-align: right;">R$ ${(item.preco_venda * item.quantidade).toFixed(2)}</td>
-                                <td style="text-align: center;"><button onclick="removerVenda(${item.id})" style="background: #dc3545; padding: 5px 10px; font-size: 12px;">✕</button></td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #e7f3ff; border-radius: 4px;">
-                    <strong style="font-size: 18px;">Total: R$ ${total.toFixed(2)}</strong>
-                    <button onclick="finalizarVenda()" class="success" style="padding: 12px 24px; font-size: 16px;">🛒 Finalizar Venda</button>
-                </div>
-            `;
-            
+            let html = '<table><thead><tr><th>Produto</th><th>Tipo</th><th>Quantidade / Peso</th><th>Preço Unit.</th><th>Total</th><th></th></tr></thead><tbody>';
+            let soma = 0;
+            db.vendaLista.forEach((it, idx) => {
+                const total = it.vendido_por === 'peso' ? (it.preco_venda * (it.peso || 0)) : (it.preco_venda * (it.quantidade || 0));
+                soma += total;
+                html += `<tr>
+                    <td>${it.nome}</td>
+                    <td>${it.vendido_por === 'peso' ? 'Kg' : 'Un'}</td>
+                    <td>${it.vendido_por === 'peso' ? (it.peso || 0) + ' kg' : (it.quantidade || 0)}</td>
+                    <td>R$ ${Number(it.preco_venda).toFixed(2)}</td>
+                    <td>R$ ${Number(total).toFixed(2)}</td>
+                    <td><button onclick="removerVenda(${idx})">Remover</button></td>
+                </tr>`;
+            });
+            html += `</tbody></table><div style="text-align:right;margin-top:8px;"><strong>Total: R$ ${soma.toFixed(2)}</strong> <button onclick="finalizarVenda()" class="success" style="margin-left:12px;">Finalizar Venda</button></div>`;
             container.innerHTML = html;
+            atualizarStatus();
         }
 
         function finalizarVenda() {
@@ -530,6 +625,13 @@
             document.getElementById('statusSetores').textContent = `<strong>Setores cadastrados:</strong> ${db.setores.length}`;
             document.getElementById('statusProdutos').textContent = `<strong>Produtos cadastrados:</strong> ${db.produtos.length}`;
             document.getElementById('statusVendas').textContent = `<strong>Vendas realizadas:</strong> ${db.saidas.length}`;
+        }
+
+        // Limpar dados e recarregar (para desenvolvimento)
+        function resetarDados() {
+            if (confirm('Tem certeza que deseja RESETAR todos os dados? Esta ação não pode ser desfeita.')) {
+                localStorage.removeItem('amgestao_db'); location.reload();
+            }
         }
     </script>
 </body>
