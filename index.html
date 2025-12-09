@@ -215,30 +215,36 @@
      </div>
 
     <script>
-        // Database em memória
+        // Database em memória (defaults)
         const db = {
             setores: [],
             produtos: [],
             saidas: [],
             nextSetor: 1,
             nextProduto: 1,
-             vendaLista: []
-         };
+            vendaLista: []
+        };
+
+        // Carregar dados do localStorage (se existir)
+        function carregarDados() {
+            const saved = localStorage.getItem('amgestao_db');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // mesclar para manter referências de db
+                db.setores = parsed.setores || [];
+                db.produtos = parsed.produtos || [];
+                db.saidas = parsed.saidas || [];
+                db.nextSetor = parsed.nextSetor || (db.setores.length ? Math.max(...db.setores.map(s=>s.id))+1 : 1);
+                db.nextProduto = parsed.nextProduto || (db.produtos.length ? Math.max(...db.produtos.map(p=>p.id))+1 : 1);
+                db.vendaLista = parsed.vendaLista || [];
+            }
+        }
 
         // Salvar dados no localStorage
         function salvarDados() {
             localStorage.setItem('amgestao_db', JSON.stringify(db));
         }
 
-        // Carregar dados do localStorage
-        function carregarDados() {
-            const saved = localStorage.getItem('amgestao_db');
-            if (saved) {
-                Object.assign(db, JSON.parse(saved));
-            }
-        }
-
-        // Inicializar na carga
         window.onload = function() {
             carregarDados();
             renderSetores();
@@ -247,10 +253,7 @@
             atualizarStatus();
         };
 
-        function showMessage(msg, type = 'info') {
-            // mensagem simples via alert/console para manter UI limpa
-            console.log(`[${type}] ${msg}`);
-        }
+        function showMessage(msg, type = 'info') { console.log(`[${type}] ${msg}`); }
 
         function renderSetores() {
             const container = document.getElementById('setoresContainer');
@@ -322,7 +325,6 @@
             const setorFiltro = document.getElementById('setorFiltro');
             const busca = document.getElementById('produtoBusca');
 
-            // atualiza selects
             if (selectVenda) {
                 selectVenda.innerHTML = '<option value="">— Selecione um produto —</option>' + db.produtos.map(p => {
                     return `<option value="${p.id}">${p.nome} — R$ ${Number(p.preco_venda).toFixed(2)} — ${p.vendido_por === 'peso' ? 'kg' : 'un'}</option>`;
@@ -335,7 +337,6 @@
                 setorFiltro.innerHTML = '<option value="">Todos os setores</option>' + db.setores.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
             }
 
-            // grid de produtos
             if (!grid) return;
             grid.innerHTML = '';
             const termo = (busca && busca.value) ? busca.value.toLowerCase() : '';
@@ -405,7 +406,6 @@
             db.produtos.push(produto);
             salvarDados();
             showMessage('Produto cadastrado.', 'success');
-            // limpar form
             document.getElementById('produtoNome').value = '';
             document.getElementById('produtoCodigo').value = '';
             document.getElementById('produtoPrecoCompra').value = '';
@@ -424,7 +424,6 @@
         function editarProduto(produtoId) {
             const p = db.produtos.find(x => x.id === produtoId);
             if (!p) return alert('Produto não encontrado');
-            // preenchimento simples do formulário para edição
             document.getElementById('produtoNome').value = p.nome || '';
             document.getElementById('produtoCodigo').value = p.codigo_barras || '';
             document.getElementById('setorProduto').value = p.setor_id || '';
@@ -433,7 +432,6 @@
             document.getElementById('produtoQuantidade').value = p.quantidade || 0;
             document.getElementById('produtoTipoVenda').value = p.vendido_por || 'unidade';
             document.getElementById('produtoPesoUnidade').value = p.peso_unidade || '';
-            // remover produto atual para substituição ao salvar (simples)
             db.produtos = db.produtos.filter(x => x.id !== produtoId);
             salvarDados();
             renderProdutos();
@@ -534,7 +532,6 @@
                 return;
             }
 
-            // registro simples de saída
             for (const item of db.vendaLista) {
                 db.saidas.push({
                     id: db.saidas.length + 1,
@@ -592,9 +589,7 @@
             }
         }
 
-        // utilitários simples
         function filtrarProdutos() { renderProdutos(); }
     </script>
 </body>
 </html>
-SO
