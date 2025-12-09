@@ -1,121 +1,85 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Gestão de Comércio - Sistema de Caixa</title>
     <style>
-        /* Reset básico */
+        /* Reset e tipografia */
         * { box-sizing: border-box; }
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            background: #fffdfb;
+            background: #f5f5f4;
             color: #35231b;
         }
 
-        /* Paleta: marrom principal e branco */
+        /* Paleta limpa */
         :root{
             --brown-900: #4a2e23;
             --brown-700: #6b3e2d;
-            --brown-500: #8b5a49;
-            --bg: #fffdfb;
             --muted: #7a6a63;
-            --accent: #b57f6b;
+            --bg: #fffdfb;
         }
 
-        /* Container geral */
+        /* Container */
         .container {
-            max-width: 1300px;
-            margin: 16px auto;
+            max-width: 1200px;
+            margin: 20px auto;
             background: #ffffff;
             border-radius: 10px;
-            min-height: 90vh;
-            box-shadow: 0 6px 20px rgba(75,50,40,0.06);
+            min-height: 88vh;
+            box-shadow: 0 8px 30px rgba(30,20,15,0.06);
             overflow: hidden;
         }
 
-        /* Topbar */
+        /* Topbar simples */
         .topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 20px;
-            background: linear-gradient(90deg, var(--brown-900), var(--brown-700));
-            color: #fff;
-        }
-        .topbar .title { font-size: 18px; font-weight: 600; }
-        .topbar .actions { display:flex; gap:8px; align-items:center; }
-        .topbar .search { background: rgba(255,255,255,0.08); border: none; padding:8px 10px; color:#fff; border-radius:6px; min-width:260px; }
-
-        /* Layout principal em duas colunas */
-        .layout {
-            display: grid;
-            grid-template-columns: 1fr 420px;
-            gap: 0;
-            min-height: calc(100vh - 74px);
-        }
-
-        /* Painel esquerdo: seleção de produtos */
-        .panel-left {
-            padding: 18px;
-            border-right: 1px solid #f0e9e6;
-            background: var(--bg);
-        }
-        .panel-left .section-title { font-weight: 600; color: var(--brown-900); margin-bottom: 12px; }
-        .search-row { display:flex; gap:8px; align-items:center; margin-bottom:12px; }
-        .search-input { flex:1; padding:10px 12px; border:1px solid #efe7e3; border-radius:8px; background:#fff; color:var(--brown-900); }
-        .product-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap:12px; margin-top:12px; }
-        .product-card {
-            background:#fff;
-            border:1px solid #f0e6e2;
-            border-radius:8px;
-            padding:12px;
             display:flex;
-            flex-direction:column;
-            gap:8px;
-            min-height:120px;
+            align-items:center;
+            justify-content:space-between;
+            padding:12px 18px;
+            background: var(--brown-900);
+            color:#fff;
         }
-        .product-card .name { font-weight:600; color:var(--brown-900); }
-        .product-card .meta { color:var(--muted); font-size:13px; }
-        .product-card .actions { margin-top:auto; display:flex; gap:8px; }
-        .btn, button {
-            border: none;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 6px;
-            background: var(--brown-700);
-            color: #fff;
-        }
-        .btn.ghost {
-            background: transparent;
-            border: 1px solid #f0e6e2;
-            color: var(--brown-700);
-        }
+        .topbar .title { font-size:16px; font-weight:600; }
+        .topbar .actions { display:flex; gap:8px; align-items:center; }
+
+        .search { padding:8px 10px; border-radius:6px; border:none; min-width:260px; }
+
+        /* Layout */
+        .layout { display:grid; grid-template-columns: 1fr 420px; gap:0; min-height: calc(100vh - 64px); }
+        @media (max-width:1000px) { .layout { grid-template-columns: 1fr; } }
+
+        /* Painel esquerdo */
+        .panel-left { padding:18px; border-right:1px solid #efe7e3; background:var(--bg); }
+        .section { margin-bottom:18px; }
+        .section h2 { margin:0 0 8px 0; font-size:16px; color:var(--brown-900); }
+
+        .flex-row { display:flex; gap:8px; align-items:center; }
+        .btn { background:var(--brown-700); color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+        .btn.ghost { background:transparent; border:1px solid #efe7e3; color:var(--brown-700); }
         .btn.small { padding:6px 8px; font-size:13px; }
 
-        /* Painel direito: caixa / carrinho */
-        .panel-right {
-            padding: 18px;
-            background: #fff;
-            display:flex;
-            flex-direction:column;
-            justify-content:space-between;
-        }
-        .cart-header { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+        .product-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-top:12px; }
+        .product-card { background:#fff; border:1px solid #f0e6e2; border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:8px; min-height:110px; }
+        .product-name { font-weight:600; color:var(--brown-900); }
+        .product-meta { color:var(--muted); font-size:13px; }
+
+        input[type="text"], input[type="number"], select { padding:8px 10px; border:1px solid #eee; border-radius:6px; background:#fff; }
+
+        /* Painel direito */
+        .panel-right { padding:18px; background:#fff; display:flex; flex-direction:column; justify-content:space-between; }
         .cart-list { margin-top:12px; overflow:auto; max-height:60vh; }
-        .cart-item { display:flex; gap:12px; padding:10px; border-radius:8px; border:1px solid #f1e9e6; align-items:center; background:#fff; margin-bottom:8px; }
-        .cart-item .info { flex:1; }
-        .cart-item .qty { display:flex; gap:6px; align-items:center; }
         .totals { padding:12px; border-top:1px dashed #f0e6e2; display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
         .total-amount { font-size:20px; font-weight:700; color:var(--brown-900); }
-        .finalize { background: var(--brown-900); padding:10px 16px; border-radius:8px; color:#fff; font-weight:600; }
 
-        /* Responsivo */
-        @media (max-width: 1000px) {
-            .layout { grid-template-columns: 1fr; }
-            .panel-right { order: 2; }
-        }
+        .status-bar { padding:8px 18px; background:#faf7f5; border-top:1px solid #f0e6e2; display:flex; gap:12px; color:var(--muted); font-size:13px; align-items:center; }
+        .empty-state { color:var(--muted); padding:10px 6px; }
+
+        table { width:100%; border-collapse:collapse; }
+        th, td { padding:8px 6px; border-bottom:1px solid #f3efec; text-align:left; }
+        .small-input { width:90px; padding:6px; border-radius:6px; border:1px solid #eee; }
     </style>
 </head>
 <body>
@@ -123,47 +87,116 @@
         <div class="topbar">
             <div class="title">📦 Gestão de Comércio — Caixa</div>
             <div class="actions">
-                <input class="search" id="globalSearch" placeholder="Pesquisar produto, código..." />
+                <input id="globalSearch" class="search" placeholder="Pesquisar produto, código..." />
                 <button class="btn" onclick="criarSetor()">➕ Setor</button>
-                <button class="btn ghost" onclick="criarProduto(event)">➕ Produto</button>
+                <button class="btn ghost" onclick="document.getElementById('formProduto').scrollIntoView()">➕ Produto</button>
             </div>
         </div>
-        <div id="message" style="padding:10px 18px;"></div>
+
+        <div class="status-bar">
+            <div id="statusSetores">Setores cadastrados: 0</div>
+            <div id="statusProdutos">Produtos cadastrados: 0</div>
+            <div id="statusVendas">Vendas realizadas: 0</div>
+        </div>
 
         <div class="layout">
             <div class="panel-left">
-                <div class="section-title">Produtos</div>
-                <div class="search-row">
-                    <input id="produtoBusca" class="search-input" placeholder="Pesquisar por nome, código ou GTIN" />
-                    <button class="btn small" onclick="filtrarProdutos()">Pesquisar</button>
+                <div class="section">
+                    <h2>Setores</h2>
+                    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                        <button class="btn" onclick="criarSetor()">➕ Novo Setor</button>
+                        <div style="flex:1"></div>
+                    </div>
+                    <div id="setoresContainer" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
                 </div>
 
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                    <select id="setorFiltro" style="padding:8px;border-radius:8px;border:1px solid #efe7e3;background:#fff;">
-                        <option value="">Todos os setores</option>
-                    </select>
-                    <button class="btn ghost small" onclick="showFavoritos()">Ver favoritos</button>
+                <div class="section" id="formProduto">
+                    <h2>Cadastro de Produto</h2>
+                    <form onsubmit="criarProduto(event)" style="display:grid;grid-template-columns:1fr 1fr; gap:8px;align-items:end;">
+                        <div style="grid-column:1/3">
+                            <label>Nome</label><br/>
+                            <input id="produtoNome" type="text" required />
+                        </div>
+                        <div>
+                            <label>Código de Barras</label><br/>
+                            <input id="produtoCodigo" type="text" />
+                        </div>
+                        <div>
+                            <label>Setor</label><br/>
+                            <select id="setorProduto"></select>
+                        </div>
+                        <div>
+                            <label>Preço de Compra (R$)</label><br/>
+                            <input id="produtoPrecoCompra" type="number" step="0.01" min="0" required />
+                        </div>
+                        <div>
+                            <label>Preço de Venda (R$)</label><br/>
+                            <input id="produtoPrecoVenda" type="number" step="0.01" min="0" required />
+                        </div>
+                        <div>
+                            <label>Quantidade em Estoque</label><br/>
+                            <input id="produtoQuantidade" type="number" step="1" min="0" value="0" required />
+                        </div>
+                        <div>
+                            <label>Tipo de venda</label><br/>
+                            <select id="produtoTipoVenda">
+                                <option value="unidade">Unidade</option>
+                                <option value="peso">Peso (kg)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Peso por unidade (kg) — opcional</label><br/>
+                            <input id="produtoPesoUnidade" type="number" step="0.001" min="0" placeholder="ex: 0.250" />
+                        </div>
+                        <div style="grid-column:1/3;text-align:right;">
+                            <button type="submit" class="btn">Cadastrar Produto</button>
+                        </div>
+                    </form>
                 </div>
 
-                <div id="productGrid" class="product-grid">
-                    <!-- cards preenchidos por renderProdutos() -->
+                <div class="section">
+                    <h2>Produtos</h2>
+                    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                        <input id="produtoBusca" class="search" placeholder="Pesquisar por nome, código ou GTIN" />
+                        <button class="btn small" onclick="filtrarProdutos()">Pesquisar</button>
+                        <select id="setorFiltro" style="padding:8px;border-radius:6px;border:1px solid #efe7e3;background:#fff;">
+                            <option value="">Todos os setores</option>
+                        </select>
+                    </div>
+
+                    <div id="productGrid" class="product-grid">
+                        <!-- cards preenchidos por renderProdutos() -->
+                    </div>
                 </div>
             </div>
+
             <div class="panel-right">
                 <div>
-                    <div class="cart-header">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
                         <div>
                             <div style="font-weight:600;color:var(--brown-900)">Venda atual</div>
-                            <div style="font-size:13px;color:var(--muted)">Adicione itens à venda à esquerda</div>
+                            <div style="font-size:13px;color:var(--muted)">Adicione itens à venda</div>
                         </div>
                         <div>
-                            <input id="vendaBusca" class="search-input" placeholder="Buscar item..." style="min-width:220px;" />
+                            <input id="vendaBusca" class="search" placeholder="Buscar item..." style="min-width:200px;" />
                         </div>
                     </div>
 
-                    <div id="vendaContainer" class="cart-list">
-                        <!-- items gerados por renderVenda() -->
+                    <div style="margin-top:12px;display:flex;gap:8px;align-items:end;">
+                        <div style="flex:1">
+                            <label>Produto</label><br/>
+                            <select id="vendaProdutoSelect" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee;"></select>
+                        </div>
+                        <div>
+                            <label>Quantidade / Peso</label><br/>
+                            <input id="vendaQtd" type="number" step="any" min="0.001" class="small-input" placeholder="Qtd ou Kg" />
+                        </div>
+                        <div>
+                            <button class="btn" style="height:40px" onclick="scanVenda()">Adicionar</button>
+                        </div>
                     </div>
+
+                    <div id="vendaContainer" class="cart-list"></div>
                 </div>
 
                 <div>
@@ -171,9 +204,10 @@
                         <div style="color:var(--muted)">Total</div>
                         <div class="total-amount" id="totalAmount">R$ 0,00</div>
                     </div>
+
                     <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end;">
                         <button class="btn ghost" onclick="resetarDados()">Limpar</button>
-                        <button class="finalize" onclick="finalizarVenda()">Finalizar venda</button>
+                        <button class="btn" style="background:var(--brown-900);color:#fff;" onclick="finalizarVenda()">Finalizar venda</button>
                     </div>
                 </div>
             </div>
@@ -214,24 +248,22 @@
         };
 
         function showMessage(msg, type = 'info') {
-            const msgDiv = document.getElementById('message');
-            msgDiv.textContent = msg;
-            msgDiv.className = `status-message status-${type}`;
-            msgDiv.style.display = 'block';
-            setTimeout(() => msgDiv.style.display = 'none', 4000);
+            // mensagem simples via alert/console para manter UI limpa
+            console.log(`[${type}] ${msg}`);
         }
 
         function renderSetores() {
             const container = document.getElementById('setoresContainer');
             const select = document.getElementById('setorProduto');
+            const filtro = document.getElementById('setorFiltro');
 
+            if (!container) return;
             container.innerHTML = '';
-            if (!select) {
-                // se o formulário ainda não tem o select, apenas ignore
-            }
+
             if (db.setores.length === 0) {
                 container.innerHTML = '<div class="empty-state">Nenhum setor cadastrado. Clique em "➕ Novo Setor" para adicionar.</div>';
                 if (select) select.innerHTML = '<option value="">— Selecione um setor —</option>';
+                if (filtro) filtro.innerHTML = '<option value="">Todos os setores</option>';
                 atualizarStatus();
                 return;
             }
@@ -240,16 +272,16 @@
             for (const s of db.setores) {
                 const produtosCount = db.produtos.filter(p => p.setor_id === s.id).length;
                 html += `
-                    <div class="setor-box">
+                    <div style="border:1px solid #f0e6e2;padding:8px;border-radius:8px;background:#fff;min-width:140px;">
                         <div style="display:flex;align-items:center;gap:8px;">
                             <strong>${s.nome}</strong>
                             <small style="color:#666;margin-left:6px;">(${produtosCount})</small>
                         </div>
                         <div style="margin-top:8px;display:flex;gap:6px;">
                             <a href="setor.html?setor_id=${s.id}" target="_blank" style="text-decoration:none;">
-                                <button type="button">Abrir produtos</button>
+                                <button type="button" class="btn small">Abrir</button>
                             </a>
-                            <button type="button" style="background:#dc3545;border:none;color:#fff;padding:8px 10px;border-radius:4px;" onclick="excluirSetor(${s.id})">Excluir</button>
+                            <button type="button" class="btn ghost small" onclick="excluirSetor(${s.id})" style="background:#dc3545;color:#fff;border:none;">Excluir</button>
                         </div>
                     </div>
                 `;
@@ -258,6 +290,9 @@
 
             if (select) {
                 select.innerHTML = '<option value="">— Selecione um setor —</option>' + db.setores.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
+            }
+            if (filtro) {
+                filtro.innerHTML = '<option value="">Todos os setores</option>' + db.setores.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
             }
             atualizarStatus();
         }
@@ -270,7 +305,6 @@
             if (produtosNoSetor.length > 0) {
                 const confirmMsg = `O setor "${setor.nome}" possui ${produtosNoSetor.length} produto(s). Ao excluir, os produtos ficarão sem setor. Deseja continuar?`;
                 if (!confirm(confirmMsg)) return;
-                // desassocia produtos (mantém produtos)
                 produtosNoSetor.forEach(p => { p.setor_id = null; });
             }
 
@@ -282,39 +316,55 @@
         }
 
         function renderProdutos() {
-            const tbody = document.getElementById('produtosTableBody');
-            // se não existir tabela detalhada, apenas atualiza selects
+            const grid = document.getElementById('productGrid');
             const selectVenda = document.getElementById('vendaProdutoSelect');
             const selectCadastroSetor = document.getElementById('setorProduto');
+            const setorFiltro = document.getElementById('setorFiltro');
+            const busca = document.getElementById('produtoBusca');
 
+            // atualiza selects
             if (selectVenda) {
                 selectVenda.innerHTML = '<option value="">— Selecione um produto —</option>' + db.produtos.map(p => {
                     return `<option value="${p.id}">${p.nome} — R$ ${Number(p.preco_venda).toFixed(2)} — ${p.vendido_por === 'peso' ? 'kg' : 'un'}</option>`;
                 }).join('');
             }
-
             if (selectCadastroSetor) {
                 selectCadastroSetor.innerHTML = '<option value="">— Selecione um setor —</option>' + db.setores.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
             }
+            if (setorFiltro) {
+                setorFiltro.innerHTML = '<option value="">Todos os setores</option>' + db.setores.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
+            }
 
-            // atualizar listagem principal de produtos se houver tabela
-            if (tbody) {
-                tbody.innerHTML = '';
-                if (db.produtos.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhum produto cadastrado.</td></tr>';
-                } else {
-                    for (const p of db.produtos) {
-                        const setor = db.setores.find(s => s.id === p.setor_id);
-                        tbody.innerHTML += `<tr>
-                            <td>${p.nome}</td>
-                            <td>${p.codigo_barras || ''}</td>
-                            <td>R$ ${Number(p.preco_venda).toFixed(2)}</td>
-                            <td>${p.quantidade ?? 0}</td>
-                            <td>${p.vendido_por === 'peso' ? 'Peso (kg)' : 'Unidade'}</td>
-                            <td>${p.peso_unidade ? p.peso_unidade + ' kg' : '-'}</td>
-                        </tr>`;
-                    }
-                }
+            // grid de produtos
+            if (!grid) return;
+            grid.innerHTML = '';
+            const termo = (busca && busca.value) ? busca.value.toLowerCase() : '';
+            const filtroSetor = setorFiltro ? setorFiltro.value : '';
+
+            const produtosVisiveis = db.produtos.filter(p => {
+                if (filtroSetor && String(p.setor_id) !== String(filtroSetor)) return false;
+                if (!termo) return true;
+                return (p.nome || '').toLowerCase().includes(termo) || (p.codigo_barras || '').includes(termo);
+            });
+
+            if (produtosVisiveis.length === 0) {
+                grid.innerHTML = '<div class="empty-state">Nenhum produto encontrado.</div>';
+                atualizarStatus();
+                return;
+            }
+
+            for (const p of produtosVisiveis) {
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <div class="product-name">${p.nome}</div>
+                        <div class="product-meta">R$ ${Number(p.preco_venda || 0).toFixed(2)} • ${p.vendido_por === 'peso' ? 'kg' : 'un'} • estoque: ${p.quantidade ?? 0}</div>
+                        <div class="product-meta">${p.codigo_barras || ''}</div>
+                        <div class="actions" style="margin-top:auto;display:flex;gap:8px;">
+                            <button class="btn small" onclick="abrirProdutoParaVenda(${p.id})">Adicionar</button>
+                            <button class="btn ghost small" onclick="editarProduto(${p.id})">Editar</button>
+                        </div>
+                    </div>
+                `;
             }
             atualizarStatus();
         }
@@ -322,17 +372,17 @@
         function criarSetor() {
             const nome = prompt('Nome do setor:');
             if (!nome) return;
-            
             const novoSetor = { id: db.nextSetor++, nome };
             db.setores.push(novoSetor);
             salvarDados();
             renderSetores();
-            showMessage(`✅ Setor "${nome}" criado com sucesso!`, 'success');
+            showMessage(`Setor "${nome}" criado.`, 'success');
         }
 
         function criarProduto(event) {
-            event.preventDefault();
-            const nome = document.getElementById('produtoNome').value.trim();
+            if (event && event.preventDefault) event.preventDefault();
+            const nome = (document.getElementById('produtoNome') && document.getElementById('produtoNome').value.trim()) || '';
+            if (!nome) { showMessage('Informe nome do produto', 'error'); return; }
             const codigo = document.getElementById('produtoCodigo').value.trim();
             const setorId = Number(document.getElementById('setorProduto').value) || null;
             const precoCompra = parseFloat(document.getElementById('produtoPrecoCompra').value) || 0;
@@ -366,6 +416,29 @@
             renderProdutos();
         }
 
+        function abrirProdutoParaVenda(produtoId) {
+            const sel = document.getElementById('vendaProdutoSelect');
+            if (sel) { sel.value = produtoId; document.getElementById('vendaQtd').focus(); }
+        }
+
+        function editarProduto(produtoId) {
+            const p = db.produtos.find(x => x.id === produtoId);
+            if (!p) return alert('Produto não encontrado');
+            // preenchimento simples do formulário para edição
+            document.getElementById('produtoNome').value = p.nome || '';
+            document.getElementById('produtoCodigo').value = p.codigo_barras || '';
+            document.getElementById('setorProduto').value = p.setor_id || '';
+            document.getElementById('produtoPrecoCompra').value = p.preco_compra || 0;
+            document.getElementById('produtoPrecoVenda').value = p.preco_venda || 0;
+            document.getElementById('produtoQuantidade').value = p.quantidade || 0;
+            document.getElementById('produtoTipoVenda').value = p.vendido_por || 'unidade';
+            document.getElementById('produtoPesoUnidade').value = p.peso_unidade || '';
+            // remover produto atual para substituição ao salvar (simples)
+            db.produtos = db.produtos.filter(x => x.id !== produtoId);
+            salvarDados();
+            renderProdutos();
+        }
+
         function scanVenda() {
             const sel = document.getElementById('vendaProdutoSelect');
             const produtoId = Number(sel.value);
@@ -377,17 +450,14 @@
             const valor = parseFloat(input.value);
             if (!valor || valor <= 0) { showMessage('Informe quantidade ou peso válido', 'error'); return; }
 
-            // calcular total conforme tipo
             let quantidade = 0;
             let peso = null;
             if (produto.vendido_por === 'peso') {
-                peso = valor; // em kg
-                // opcionalmente, reduzir estoque por peso usando peso_unidade se estiver em "unidades"
+                peso = valor;
             } else {
                 quantidade = valor;
             }
 
-            // adicionar à lista de venda
             db.vendaLista.push({
                 produtoId: produto.id,
                 nome: produto.nome,
@@ -397,13 +467,9 @@
                 peso: peso
             });
 
-            // decrementar estoque quando aplicável (simples)
             if (produto.vendido_por === 'unidade') {
                 produto.quantidade = Math.max(0, (produto.quantidade || 0) - quantidade);
             } else if (produto.vendido_por === 'peso' && produto.peso_unidade) {
-                // se estoque for contado por unidades e peso_unidade informado, reduzir por número de unidades equivalentes
-                // caso contrário, não altera quantidade (sistema simples)
-                // Ex.: se peso_unidade = 0.5kg e vender 1.0kg => reduz 2 unidades
                 if (produto.quantidade && produto.peso_unidade > 0) {
                     const unidades = Math.round(peso / produto.peso_unidade);
                     produto.quantidade = Math.max(0, produto.quantidade - unidades);
@@ -418,7 +484,6 @@
 
         function removerVenda(index) {
             if (index < 0 || index >= db.vendaLista.length) return;
-            // restaurar estoque básico ao remover item (apenas para unidade simples)
             const item = db.vendaLista[index];
             const produto = db.produtos.find(p => p.id === item.produtoId);
             if (produto) {
@@ -437,6 +502,7 @@
 
         function renderVenda() {
             const container = document.getElementById('vendaContainer');
+            if (!container) return;
             if (!db.vendaLista || db.vendaLista.length === 0) {
                 container.innerHTML = '<div class="empty-state">Carrinho vazio.</div>';
                 atualizarStatus();
@@ -456,43 +522,35 @@
                     <td><button onclick="removerVenda(${idx})">Remover</button></td>
                 </tr>`;
             });
-            html += `</tbody></table><div style="text-align:right;margin-top:8px;"><strong>Total: R$ ${soma.toFixed(2)}</strong> <button onclick="finalizarVenda()" class="success" style="margin-left:12px;">Finalizar Venda</button></div>`;
+            html += `</tbody></table><div style="text-align:right;margin-top:8px;"><strong>Total: R$ ${soma.toFixed(2)}</strong> <button onclick="finalizarVenda()" style="margin-left:12px;" class="btn">Finalizar Venda</button></div>`;
             container.innerHTML = html;
+            document.getElementById('totalAmount').textContent = `R$ ${soma.toFixed(2)}`;
             atualizarStatus();
         }
 
         function finalizarVenda() {
             if (db.vendaLista.length === 0) {
-                showMessage('❌ Nenhum produto na venda', 'error');
+                showMessage('Nenhum produto na venda', 'error');
                 return;
             }
 
+            // registro simples de saída
             for (const item of db.vendaLista) {
-                const produto = db.produtos.find(p => p.id === item.id);
-                if (produto) {
-                    if (produto.quantidade < item.quantidade) {
-                        showMessage(`❌ Quantidade insuficiente de ${produto.nome}`, 'error');
-                        return;
-                    }
-                    produto.quantidade -= item.quantidade;
-                    db.saidas.push({
-                        id: db.saidas.length + 1,
-                        produto_id: item.id,
-                        quantidade: item.quantidade,
-                        data: new Date().toISOString(),
-                        codigo_barras: item.codigo_barras
-                    });
-                }
+                db.saidas.push({
+                    id: db.saidas.length + 1,
+                    produto_id: item.produtoId,
+                    quantidade: item.quantidade || item.peso || 0,
+                    data: new Date().toISOString()
+                });
             }
 
-            const total = db.vendaLista.reduce((sum, item) => sum + (item.preco_venda * item.quantidade), 0);
-            showMessage(`✅ Venda de R$ ${total.toFixed(2)} registrada com sucesso!`, 'success');
-            
+            const total = db.vendaLista.reduce((sum, item) => sum + (item.preco_venda * (item.vendido_por === 'peso' ? (item.peso || 0) : (item.quantidade || 0))), 0);
+            showMessage(`Venda de R$ ${total.toFixed(2)} registrada.`, 'success');
+
             db.vendaLista = [];
             salvarDados();
             renderVenda();
             atualizarStatus();
-            document.getElementById('codigoVenda').focus();
         }
 
         function calcularLucro() {
@@ -500,37 +558,42 @@
             for (const saida of db.saidas) {
                 const produto = db.produtos.find(p => p.id === saida.produto_id);
                 if (produto) {
-                    const lucroUnitario = produto.preco_venda - produto.preco_compra;
-                    totalLucro += lucroUnitario * saida.quantidade;
+                    const lucroUnitario = (produto.preco_venda || 0) - (produto.preco_compra || 0);
+                    totalLucro += lucroUnitario * (saida.quantidade || 0);
                 }
             }
-            showMessage(`💹 Lucro Total: R$ ${totalLucro.toFixed(2)}`, 'info');
+            showMessage(`Lucro Total: R$ ${totalLucro.toFixed(2)}`, 'info');
         }
 
         function relatorioVendas() {
             if (db.saidas.length === 0) {
-                showMessage('📋 Nenhuma venda registrada ainda', 'info');
+                showMessage('Nenhuma venda registrada ainda', 'info');
                 return;
             }
             const totalVendas = db.saidas.reduce((sum, s) => {
                 const p = db.produtos.find(x => x.id === s.produto_id);
-                return sum + (p ? p.preco_venda * s.quantidade : 0);
+                return sum + (p ? (p.preco_venda || 0) * (s.quantidade || 0) : 0);
             }, 0);
-            showMessage(`📋 ${db.saidas.length} vendas registradas | Total: R$ ${totalVendas.toFixed(2)}`, 'info');
+            showMessage(`${db.saidas.length} registros | Total: R$ ${totalVendas.toFixed(2)}`, 'info');
         }
 
         function atualizarStatus() {
-            document.getElementById('statusSetores').textContent = `<strong>Setores cadastrados:</strong> ${db.setores.length}`;
-            document.getElementById('statusProdutos').textContent = `<strong>Produtos cadastrados:</strong> ${db.produtos.length}`;
-            document.getElementById('statusVendas').textContent = `<strong>Vendas realizadas:</strong> ${db.saidas.length}`;
+            const elSet = document.getElementById('statusSetores');
+            const elProd = document.getElementById('statusProdutos');
+            const elVendas = document.getElementById('statusVendas');
+            if (elSet) elSet.textContent = `Setores cadastrados: ${db.setores.length}`;
+            if (elProd) elProd.textContent = `Produtos cadastrados: ${db.produtos.length}`;
+            if (elVendas) elVendas.textContent = `Vendas realizadas: ${db.saidas.length}`;
         }
 
-        // Limpar dados e recarregar (para desenvolvimento)
         function resetarDados() {
             if (confirm('Tem certeza que deseja RESETAR todos os dados? Esta ação não pode ser desfeita.')) {
                 localStorage.removeItem('amgestao_db'); location.reload();
             }
         }
+
+        // utilitários simples
+        function filtrarProdutos() { renderProdutos(); }
     </script>
 </body>
 </html>
