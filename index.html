@@ -190,12 +190,14 @@
 
         <section>
             <div class="flex-between">
-                <h2>🏢 Setores</h2>
-                <button onclick="criarSetor()">➕ Novo Setor</button>
+                <h2 style="margin:0;">Setores</h2>
+                <div>
+                    <button onclick="criarSetor()">➕ Novo Setor</button>
+                </div>
             </div>
-            <div id="setoresContainer" style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
-            </div>
-        </section>
+             <div id="setoresContainer" style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+             </div>
+         </section>
 
         <section>
             <h2>📝 Cadastro de Produto</h2>
@@ -304,14 +306,40 @@
             const container = document.getElementById('setoresContainer');
             const select = document.getElementById('setorProduto');
             
-            if (db.setores.length === 0) {
-                container.innerHTML = '<p style="color: #999;">Nenhum setor cadastrado</p>';
-                select.innerHTML = '<option value="">— Selecione um setor —</option>';
-            } else {
-                container.innerHTML = db.setores.map(s => `<div class="setor-box">${s.nome}</div>`).join('');
-                select.innerHTML = '<option value="">— Selecione um setor —</option>' + 
-                    db.setores.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
+            container.innerHTML = '';
+            if (!select) {
+                // se o formulário ainda não tem o select, apenas ignore
             }
+            if (db.setores.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum setor cadastrado. Clique em "➕ Novo Setor" para adicionar.</div>';
+                if (select) select.innerHTML = '<option value="">— Selecione um setor —</option>';
+                atualizarStatus();
+                return;
+            }
+
+            let html = '';
+            for (const s of db.setores) {
+                const produtosCount = db.produtos.filter(p => p.setor_id === s.id).length;
+                html += `
+                    <div class="setor-box">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <strong>${s.nome}</strong>
+                            <small style="color:#666;margin-left:6px;">(${produtosCount})</small>
+                        </div>
+                        <div style="margin-top:8px;">
+                            <a href="setor.html?setor_id=${s.id}" target="_blank" style="text-decoration:none;">
+                                <button type="button">Abrir produtos</button>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+
+            if (select) {
+                select.innerHTML = '<option value="">— Selecione um setor —</option>' + db.setores.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
+            }
+            atualizarStatus();
         }
 
         function renderProdutos() {

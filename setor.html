@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Produtos do Setor</title>
+<style>
+    body{font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif; margin:20px; background:#f5f5f5}
+    .container{max-width:1000px;margin:0 auto;background:#fff;padding:20px;border-radius:8px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border-bottom:1px solid #eee;text-align:left}
+    thead{background:#f0f0f0}
+    .empty{color:#666;padding:20px;text-align:center}
+    a.button{display:inline-block;padding:8px 12px;background:#007bff;color:#fff;border-radius:4px;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="container">
+    <a href="index.html" class="button">← Voltar</a>
+    <h1 id="titulo">Produtos</h1>
+    <div id="conteudo"></div>
+</div>
+
+<script>
+function getQuery(name) {
+    const params = new URLSearchParams(location.search);
+    return params.get(name);
+}
+
+const saved = localStorage.getItem('amgestao_db');
+const db = saved ? JSON.parse(saved) : { setores: [], produtos: [] };
+
+const setorId = parseInt(getQuery('setor_id'));
+const setor = db.setores.find(s => s.id === setorId);
+
+document.getElementById('titulo').textContent = setor ? `Produtos — ${setor.nome}` : 'Produtos — Setor não encontrado';
+
+const conteudo = document.getElementById('conteudo');
+
+if (!setor) {
+    conteudo.innerHTML = '<div class="empty">Setor não encontrado ou inválido.</div>';
+} else {
+    const produtos = db.produtos.filter(p => p.setor_id === setor.id);
+    if (produtos.length === 0) {
+        conteudo.innerHTML = '<div class="empty">Nenhum produto cadastrado neste setor.</div>';
+    } else {
+        let html = '<table><thead><tr><th>Nome</th><th>Código</th><th>Preço</th><th>Quantidade</th></tr></thead><tbody>';
+        for (const p of produtos) {
+            html += `<tr>
+                        <td>${p.nome}</td>
+                        <td>${p.codigo_barras || ''}</td>
+                        <td>R$ ${Number(p.preco_venda || 0).toFixed(2)}</td>
+                        <td>${p.quantidade ?? 0}</td>
+                    </tr>`;
+        }
+        html += '</tbody></table>';
+        conteudo.innerHTML = html;
+    }
+}
+</script>
+</body>
+</html>
