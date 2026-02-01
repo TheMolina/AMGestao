@@ -1,0 +1,22 @@
+:root{ --bg:#f7fafc; --card:#ffffff; --muted:#6b7280; --accent:#2563eb; --success:#16a34a }
+*{box-sizing:border-box}
+body{font-family:Inter, system-ui, Arial, sans-serif; background:var(--bg); margin:0; padding:24px}
+.container{max-width:1100px; margin:0 auto}
+.header{display:flex; justify-content:space-between; align-items:center; gap:16px}
+.header h1{margin:0;font-size:1.4rem}
+.muted{color:var(--muted)}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; margin-top:16px}
+.card{background:var(--card); padding:16px; border-radius:8px; box-shadow:0 1px 3px rgba(2,6,23,0.06)}
+.form{display:grid; gap:8px; grid-template-columns:repeat(1,1fr)}
+.form-inline{display:flex; gap:8px; align-items:center}
+.form input, .form select{padding:8px; border:1px solid #e5e7eb; border-radius:6px}
+.form-inline input{padding:8px; border:1px solid #e5e7eb; border-radius:6px}
+button{background:var(--accent); color:white; padding:8px 12px; border-radius:6px; border:0; cursor:pointer}
+button:hover{opacity:.95}
+.table{width:100%; border-collapse:collapse; margin-top:12px}
+.table th, .table td{padding:8px; border-bottom:1px solid #f3f4f6; text-align:left}
+.list{list-style:none; padding:0; margin:8px 0}
+.msg{margin-top:12px; color:var(--success)}
+.footer{margin-top:18px; font-size:0.9rem}
+.report{background:#fbfbff; border:1px solid #eef2ff; padding:8px; margin-top:8px; border-radius:6px}
+code{background:#f5f5f5; padding:2px 6px; border-radius:4px}
